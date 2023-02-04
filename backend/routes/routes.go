@@ -1,12 +1,15 @@
 package routes
 
 import (
+	"bytes"
+	"encoding/json"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
 
 	"github.com/AndreWongZH/iothome/globalinfo"
+	"github.com/AndreWongZH/iothome/wled"
 	"github.com/gin-gonic/gin"
 )
 
@@ -16,6 +19,7 @@ func getServerStatus(ctx *gin.Context) {
 
 func discoverNetworkDevices(ctx *gin.Context) {
 	// scan for network devices
+	// using ssdp
 }
 
 func addDevice(ctx *gin.Context) {
@@ -36,9 +40,13 @@ func showDevices(ctx *gin.Context) {
 }
 
 func getWledConfigs(ctx *gin.Context) {
-	// var wledConfig interface{}
+	var wledConfig wled.WledConfig
 
-	resp, err := http.Get("192.129.23.1/json")
+	ip := ctx.Param("ip")
+
+	fmt.Println("ip addr to find config is:", ip)
+
+	resp, err := http.Get("http://" + ip + "/json")
 	if err != nil {
 		log.Println("error retrieving wled configs")
 	}
@@ -50,16 +58,30 @@ func getWledConfigs(ctx *gin.Context) {
 		log.Println("error reading wlead configs")
 	}
 
-	fmt.Println(string(body))
+	json.Unmarshal(body, &wledConfig)
 
+	fmt.Println(wledConfig)
+	ctx.JSON(http.StatusOK, wledConfig)
 }
 
 func setWled(ctx *gin.Context) {
 	// send json to esp device
 
-	// var wledConfig interface{}
+	ip := ctx.Param("ip")
 
-	// err := ctx.BindJSON(&wledConfig)
-	// http.Post("192.129.1.1/json", "application/json", wledConfig)
+	var wledState wled.State
+
+	err := ctx.BindJSON(&wledState)
+	if err != nil {
+		log.Println("error binding to wled state")
+	}
+
+	marshalled, err := json.Marshal(wledState)
+	if err != nil {
+		log.Println("error marshalling data")
+	}
+	fmt.Println(wledState)
+
+	http.Post("http://"+ip+"/json", "application/json", bytes.NewBuffer(marshalled))
 
 }

@@ -10,5 +10,8 @@ func InitRouter() *gin.Engine {
 	r.POST("/add_device", addDevice)
 	r.GET("/devices", showDevices)
 
+	r.GET("/wled_config/:ip", getWledConfigs)
+	r.POST("/wled_config/set/:ip", setWled)
+
 	return r
 }
