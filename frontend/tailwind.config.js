@@ -7,6 +7,8 @@ module.exports = {
     extend: {
       colors: {
         'background-default': '#e0e8ea',
+        'outbounds': '#F2F2F2',
+        'highlight': '#BDDCBD',
       },
     }
   },
