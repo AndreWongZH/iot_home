@@ -9,6 +9,8 @@ module.exports = {
         'background-default': '#e0e8ea',
         'outbounds': '#F2F2F2',
         'highlight': '#BDDCBD',
+        'roomtile': '#000000B3',
+        'roomtile-highlight': '#0000004d',
       },
     }
   },
