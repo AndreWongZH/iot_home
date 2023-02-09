@@ -24,6 +24,8 @@ const RoomTile = ({name}) => {
 
 
 export default function Page() {
+  
+
   return (
     <>
       <div className="h-8"></div>
