@@ -1,7 +1,9 @@
+import { AddButton } from '@/components/button'
+import { LinkHeader } from '@/components/header'
+import Link from 'next/link'
 import { GoLightBulb } from 'react-icons/go'
 import { ImSwitch } from 'react-icons/im'
 import { TbDeviceSpeaker } from 'react-icons/tb'
-import { GrFormAdd } from 'react-icons/gr'
 
 const obj = [
   { nickname: "Monitor", state: "on", type: "wled" },
@@ -37,20 +39,14 @@ const Device = ({ nickname, state, type }) => {
   )
 }
 
-const Button = () => {
-  return (
-    <button className="shadow hover:bg-highlight focus:shadow-outline focus:outline-none text-white text-xs p-1 rounded bg-background-default">
-      <GrFormAdd size={35} color="white"/>
-    </button>
-  )
-}
 
-
-const Header = () => {
+const Header = ({ roomname }) => {
   return (
     <div className="mb-12 h-10 px-3 py-3 bg-white h-16 flex items-center justify-between">
       <h1 className="font-bold text-xl text-slate-600">Welcome home, Andre</h1>
-      <Button />
+      <Link href={`/app/dashboard/room/${roomname}/adddevice`}>
+        <AddButton />
+      </Link>
     </div>
   )
 }
@@ -58,16 +54,19 @@ const Header = () => {
 
 export default function Page({ params }) {
   console.log(params.roomname)
+
   return (
     <>
-      <Header />
+      <LinkHeader headerText={"Welcome home, andre"} href={`/app/dashboard/room/${params.roomname}/adddevice`}>
+        <AddButton />
+      </LinkHeader>
       <div className="flex flex-wrap gap-5 justify-center">
       {
         obj.map((dev) => {
           return <Device key={dev.nickname} nickname={dev.nickname} state={dev.state} type={dev.type} />
         })
       }
-        </div>
+      </div>
     </>
   )
 }
