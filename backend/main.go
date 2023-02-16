@@ -9,5 +9,5 @@ func main() {
 	globalinfo.InitializeGlobals()
 
 	r := routes.InitRouter()
-	r.Run("localhost:3000")
+	r.Run("localhost:3001")
 }

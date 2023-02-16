@@ -1,24 +1,13 @@
 package globalinfo
 
-type RegisteredDevice struct {
-	Hostname string `json:"hostname"`
-	Ipaddr   string `json:"ipaddr"`
-	Nickname string `json:"nickname"`
-	Type     string `json:"type"`
-}
+import "github.com/AndreWongZH/iothome/models"
 
 type ServerState struct {
-	Devices []RegisteredDevice
+	Rooms map[string]models.Room
 }
 
 var ServerInfo ServerState
 
 func InitializeGlobals() {
-	ServerInfo.Devices = []RegisteredDevice{}
+	ServerInfo.Rooms = make(map[string]models.Room)
 }
-
-const (
-	Computer string = "computer"
-	Switch   string = "switch"
-	Wled     string = "wled"
-)
