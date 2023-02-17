@@ -12,3 +12,8 @@ const (
 	Switch   string = "switch"
 	Wled     string = "wled"
 )
+
+type DeviceStatus struct {
+	Status bool `json:"status"`
+	On     bool `json:"on"`
+}

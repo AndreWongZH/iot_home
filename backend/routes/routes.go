@@ -29,6 +29,7 @@ func createRoom(ctx *gin.Context) {
 	}
 
 	room.Devices = []models.RegisteredDevice{}
+	room.DeviceInfo = make(map[string]models.DeviceStatus)
 	globalinfo.ServerInfo.Rooms[room.Name] = room
 }
 
@@ -54,6 +55,7 @@ func addDevice(ctx *gin.Context) {
 
 	if room, ok := globalinfo.ServerInfo.Rooms[roomName]; ok {
 		room.Devices = append(room.Devices, registeredDevice)
+		room.DeviceInfo[registeredDevice.Ipaddr] = models.DeviceStatus{Status: false, On: false}
 		globalinfo.ServerInfo.Rooms[roomName] = room
 
 		fmt.Println("device :", registeredDevice, "is added")
