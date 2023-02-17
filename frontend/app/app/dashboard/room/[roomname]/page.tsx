@@ -1,3 +1,7 @@
+"use client"
+
+
+import { Socket } from '@/components/socket';
 import { AddButton } from '@/components/button'
 import { LinkHeader } from '@/components/header'
 import Link from 'next/link'
@@ -54,6 +58,7 @@ const Header = ({ roomname }) => {
 
 export default function Page({ params }) {
   console.log(params.roomname)
+  
 
   return (
     <>
@@ -67,6 +72,7 @@ export default function Page({ params }) {
         })
       }
       </div>
+      <Socket />
     </>
   )
 }

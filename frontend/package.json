@@ -13,13 +13,17 @@
     "@types/node": "18.13.0",
     "@types/react": "18.0.27",
     "@types/react-dom": "18.0.10",
+    "bufferutil": "^4.0.7",
     "eslint": "8.33.0",
     "eslint-config-next": "13.1.6",
     "next": "13.1.6",
     "react": "18.2.0",
+    "react-color-palette": "^6.2.0",
     "react-dom": "18.2.0",
     "react-icons": "^4.7.1",
-    "typescript": "4.9.5"
+    "socket.io-client": "1.7.4",
+    "typescript": "4.9.5",
+    "utf-8-validate": "^6.0.2"
   },
   "devDependencies": {
     "autoprefixer": "^10.4.13",

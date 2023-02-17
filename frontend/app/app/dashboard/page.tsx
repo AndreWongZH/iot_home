@@ -3,6 +3,7 @@ import Link from 'next/link';
 
 import { AddButton } from '../../../components/button'
 
+
 async function getRoomData() {
   const res = await fetch('http://127.0.0.1:3001/rooms')
 
@@ -47,7 +48,6 @@ interface RegisteredDevice {
 
 export default async function Page() {
   const rooms: Room[] = await getRoomData();
-  console.log(rooms)
 
   return (
     <>
