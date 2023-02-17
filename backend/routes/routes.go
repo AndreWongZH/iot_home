@@ -65,7 +65,7 @@ func addDevice(ctx *gin.Context) {
 func showDevices(ctx *gin.Context) {
 	roomName := ctx.Param("roomname")
 
-	ctx.JSON(http.StatusOK, globalinfo.ServerInfo.Rooms[roomName].Devices)
+	ctx.JSON(http.StatusOK, globalinfo.ServerInfo.Rooms[roomName])
 }
 
 func getWledConfigs(ctx *gin.Context) {

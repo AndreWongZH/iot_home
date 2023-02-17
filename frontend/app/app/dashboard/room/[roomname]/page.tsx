@@ -1,4 +1,4 @@
-"use client"
+// "use client"
 
 
 import { Socket } from '@/components/socket';
@@ -27,7 +27,7 @@ const getDeviceIcon = (type) => {
   return <TbDeviceSpeaker size={70} />
 }
 
-const Device = ({ nickname, state, type }) => {
+const Device = ({ nickname, currentStatus, type }) => {
   let icon = getDeviceIcon(type)
 
   return (
@@ -37,29 +37,28 @@ const Device = ({ nickname, state, type }) => {
       </div>
       <div className='pl-3'>
         <h3 className="font-bold text-lg">{nickname}</h3>
-        <p className="font-light text-left">{state}</p>
+        <p className="font-light text-left">{currentStatus.state ? currentStatus.on ? "on" : "off" : "disconnected"}</p>
       </div>
     </button>
   )
 }
 
+async function getDeviceData(roomname) {
+  const res = await fetch(`http://127.0.0.1:3001/${roomname}/devices`)
 
-const Header = ({ roomname }) => {
-  return (
-    <div className="mb-12 h-10 px-3 py-3 bg-white h-16 flex items-center justify-between">
-      <h1 className="font-bold text-xl text-slate-600">Welcome home, Andre</h1>
-      <Link href={`/app/dashboard/room/${roomname}/adddevice`}>
-        <AddButton />
-      </Link>
-    </div>
-  )
+  if (!res.ok) {
+    throw new Error("failed to fetch rooms")
+  }
+
+  return res.json()
 }
 
 
-export default function Page({ params }) {
+export default async function Page({ params }) {
   console.log(params.roomname)
+  const devicesData = await getDeviceData(params.roomname)
+  console.log(devicesData)
   
-
   return (
     <>
       <LinkHeader headerText={"Welcome home, andre"} href={`/app/dashboard/room/${params.roomname}/adddevice`}>
@@ -67,8 +66,8 @@ export default function Page({ params }) {
       </LinkHeader>
       <div className="flex flex-wrap gap-5 justify-center">
       {
-        obj.map((dev) => {
-          return <Device key={dev.nickname} nickname={dev.nickname} state={dev.state} type={dev.type} />
+        devicesData.devices.map((dev) => {
+          return <Device key={dev.nickname} nickname={dev.nickname} currentStatus={devicesData.DeviceInfo[dev.ipaddr]} type={dev.type} />
         })
       }
       </div>
