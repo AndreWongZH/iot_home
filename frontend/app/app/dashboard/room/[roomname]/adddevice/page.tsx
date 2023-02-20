@@ -36,8 +36,8 @@ export default function Page() {
         method: 'POST'
       }
     )
-    
-    router.back()
+
+    router.replace(`/app/dashboard/room/${roomname}`)
   }
 
   return (

@@ -28,7 +28,7 @@ func createRoom(ctx *gin.Context) {
 		return
 	}
 
-	room.Devices = []models.RegisteredDevice{}
+	room.Devices = make(map[string]models.RegisteredDevice)
 	room.DeviceInfo = make(map[string]models.DeviceStatus)
 	globalinfo.ServerInfo.Rooms[room.Name] = room
 }
@@ -54,7 +54,7 @@ func addDevice(ctx *gin.Context) {
 	}
 
 	if room, ok := globalinfo.ServerInfo.Rooms[roomName]; ok {
-		room.Devices = append(room.Devices, registeredDevice)
+		room.Devices[registeredDevice.Ipaddr] = registeredDevice
 		room.DeviceInfo[registeredDevice.Ipaddr] = models.DeviceStatus{Status: false, On: false}
 		globalinfo.ServerInfo.Rooms[roomName] = room
 
@@ -65,7 +65,82 @@ func addDevice(ctx *gin.Context) {
 func showDevices(ctx *gin.Context) {
 	roomName := ctx.Param("roomname")
 
-	ctx.JSON(http.StatusOK, globalinfo.ServerInfo.Rooms[roomName])
+	devList := make([]models.RegisteredDevice, 0, len(globalinfo.ServerInfo.Rooms[roomName].Devices))
+
+	for _, value := range globalinfo.ServerInfo.Rooms[roomName].Devices {
+		devList = append(devList, value)
+	}
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"devList":   devList,
+		"devStatus": globalinfo.ServerInfo.Rooms[roomName].DeviceInfo,
+	})
+}
+
+func offDevice(ctx *gin.Context) {
+	roomName := ctx.Param("roomname")
+	ip := ctx.Param("ip")
+
+	var wledSwitch wled.WledSwitch
+	wledSwitch.On = false
+
+	marshalled, err := json.Marshal(wledSwitch)
+	if err != nil {
+		log.Println("error marshalling data")
+	}
+
+	devStatus := globalinfo.ServerInfo.Rooms[roomName].DeviceInfo[ip]
+
+	if globalinfo.ServerInfo.Rooms[roomName].Devices[ip].Type == "wled" {
+		resp, err := http.Post("http://"+ip+"/json", "application/json", bytes.NewBuffer(marshalled))
+		if err != nil {
+			log.Println("error")
+			log.Println(err)
+		}
+
+		fmt.Println(resp)
+		defer resp.Body.Close()
+	}
+
+	devStatus.On = false
+	globalinfo.ServerInfo.Rooms[roomName].DeviceInfo[ip] = devStatus
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+	})
+}
+
+func onDevice(ctx *gin.Context) {
+	roomName := ctx.Param("roomname")
+	ip := ctx.Param("ip")
+
+	var wledSwitch wled.WledSwitch
+	wledSwitch.On = true
+
+	marshalled, err := json.Marshal(wledSwitch)
+	if err != nil {
+		log.Println("error marshalling data")
+	}
+
+	devStatus := globalinfo.ServerInfo.Rooms[roomName].DeviceInfo[ip]
+
+	if globalinfo.ServerInfo.Rooms[roomName].Devices[ip].Type == "wled" {
+		resp, err := http.Post("http://"+ip+"/json", "application/json", bytes.NewBuffer(marshalled))
+		if err != nil {
+			log.Println("error")
+			log.Println(err)
+		}
+
+		fmt.Println(resp)
+		defer resp.Body.Close()
+	}
+
+	devStatus.On = true
+	globalinfo.ServerInfo.Rooms[roomName].DeviceInfo[ip] = devStatus
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+	})
 }
 
 func getWledConfigs(ctx *gin.Context) {

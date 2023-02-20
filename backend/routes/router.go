@@ -5,7 +5,6 @@ import (
 
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	socketio "github.com/googollee/go-socket.io"
 )
 
 func GinMiddleware(allowOrigin string) gin.HandlerFunc {
@@ -15,7 +14,8 @@ func GinMiddleware(allowOrigin string) gin.HandlerFunc {
 	}
 }
 
-func InitRouter(socketServer *socketio.Server) *gin.Engine {
+// func InitRouter(socketServer *socketio.Server) *gin.Engine {
+func InitRouter() *gin.Engine {
 	r := gin.Default()
 
 	// r.Use(GinMiddleware("http://localhost:3000"))
@@ -37,13 +37,16 @@ func InitRouter(socketServer *socketio.Server) *gin.Engine {
 	r.POST("/:roomname/add_device", addDevice)
 	r.GET("/:roomname/devices", showDevices)
 
+	r.POST("/:roomname/:ip/off", offDevice)
+	r.POST("/:roomname/:ip/on", onDevice)
+
 	r.GET("/:roomname/wled_config/:ip", getWledConfigs)
 	r.POST("/:roomname/wled_config/set/:ip", setWled)
 
 	r.GET("/discover", discoverNetworkDevices)
 
-	r.GET("/socket.io/*any", gin.WrapH(socketServer))
-	r.POST("/socket.io/*any", gin.WrapH(socketServer))
+	// r.GET("/socket.io/*any", gin.WrapH(socketServer))
+	// r.POST("/socket.io/*any", gin.WrapH(socketServer))
 
 	return r
 }

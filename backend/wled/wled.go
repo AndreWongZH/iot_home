@@ -26,3 +26,7 @@ type WledConfig struct {
 	Effects  []string `json:"effects"`
 	Palettes []string `json:"palettes"`
 }
+
+type WledSwitch struct {
+	On bool `json:"on"`
+}

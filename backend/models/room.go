@@ -1,9 +1,9 @@
 package models
 
 type Room struct {
-	Name       string             `json:"name"`
-	Devices    []RegisteredDevice `json:"devices"`
-	DeviceInfo map[string]DeviceStatus
+	Name       string                      `json:"name"`
+	Devices    map[string]RegisteredDevice `json:"devices"`
+	DeviceInfo map[string]DeviceStatus     `json:"deviceInfo"`
 }
 
 // type RoomResponse struct {
