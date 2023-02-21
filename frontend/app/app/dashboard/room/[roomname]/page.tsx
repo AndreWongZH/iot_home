@@ -3,8 +3,8 @@
 
 import { Socket } from '@/components/socket';
 import { AddButton, Device } from '@/components/button'
-import { LinkHeader } from '@/components/header'
 import Link from 'next/link'
+import { LinkHeader } from '../../linkheader';
 
 const obj = [
   { nickname: "Monitor", state: "on", type: "wled" },
