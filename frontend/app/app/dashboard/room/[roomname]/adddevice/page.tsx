@@ -1,11 +1,10 @@
 "use client"
 
 import { BackHeader } from '@/components/header';
-import { usePathname, useRouter } from 'next/navigation';
+import { usePathname } from 'next/navigation';
 import { useState } from 'react';
 
 export default function Page() {
-  const router = useRouter();
   const pathname = usePathname()
   const roomname = pathname?.split("/")[4]
 
@@ -42,7 +41,7 @@ export default function Page() {
 
   return (
     <>
-      <BackHeader router={router} />
+      <BackHeader />
       <div className="flex flex-col items-center">
         <form>
           <div className="flex flex-col justify-center items-center gap-y-2.5">

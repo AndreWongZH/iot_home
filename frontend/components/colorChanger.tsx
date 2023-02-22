@@ -1,48 +1,39 @@
 "use client"
 
+import { useEffect, useState, useRef } from 'react'
 import { ColorPicker, useColor } from 'react-color-palette'
 import "react-color-palette/lib/css/styles.css";
 
 export const ColorChanger = ({ defaultColor, onColorChange }) => {
+  const [dimension, setDims] = useState({ height: 0, width: 0 })
+  const pickerRef = useRef(null);
+
   const [color, setColor] = useColor("rgb", {
     r: defaultColor[0],
     g: defaultColor[1],
     b: defaultColor[2],
   })
 
-  // const changeColor = async () => {
-  //   console.log(color)
+  useEffect(() => {
+    const { height, width } = pickerRef.current.getBoundingClientRect();
 
-  //   const wledJson = {
-  //     seg: [
-  //       {
-  //         col: [[color.rgb.r, color.rgb.g, color.rgb.b]]
-  //       }
-  //     ]
-  //   }
-
-  //   await fetch(`http://127.0.0.1:3001/${roomname}/wled_config/set/${ip}`,
-  //     {
-  //       body: JSON.stringify(wledJson),
-  //       headers: {
-  //         'Content-Type': 'application/json'
-  //       },
-  //       method: 'POST'
-  //     }
-  //   )
-  // }
+    setDims({
+      height: height,
+      width: width
+    })
+  }, []);
 
   return (
-    <div>
+    <div className='w-3/4 mx-auto' ref={pickerRef}>
       <ColorPicker
-        width={456}
-        height={228}
+        width={dimension.width}
+        height={dimension.height}
         color={color}
         onChange={(e) => { setColor(e); onColorChange(e) }}
         hideHSV
+        hideHEX
         dark
       />
-      
     </div>
   )
 }

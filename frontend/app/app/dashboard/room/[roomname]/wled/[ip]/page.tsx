@@ -1,4 +1,5 @@
 import { ColorChanger } from "@/components/colorChanger";
+import { BackHeader } from "@/components/header";
 import { Slider } from "@/components/slider";
 import { InputsHandler } from "./inputshandler";
 
@@ -18,10 +19,9 @@ export default async function Page({ params }) {
 
   return (
     <div className="w-full">
-      {/* <ColorChanger defaultColor={wledInfo.seg[0].col[0]} roomname={params.roomname} ip={params.ip} /> */}
-      {/* <h1 className="p-10 mr-10 ml-10">hello world</h1> */}
-      {/* <Slider defaultValue={wledInfo.bri}/> */}
-      <InputsHandler roomname={params.roomname} ip={params.ip} default_wled_info={wledInfo} />
+      <BackHeader />
+      {wledInfo.success ? <InputsHandler roomname={params.roomname} ip={params.ip} default_wled_info={wledInfo.data} /> : <></>}
+      {wledInfo.success ? <></> : <h1>Error fetching wled data. Wled device is offline</h1>}
     </div>
   )
 }
