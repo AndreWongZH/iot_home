@@ -7,6 +7,7 @@ import (
 	"io/ioutil"
 	"log"
 	"net/http"
+	"time"
 
 	"github.com/AndreWongZH/iothome/globalinfo"
 	"github.com/AndreWongZH/iothome/models"
@@ -59,7 +60,10 @@ func addDevice(ctx *gin.Context) {
 		globalinfo.ServerInfo.Rooms[roomName] = room
 
 		fmt.Println("device :", registeredDevice, "is added")
+		ctx.JSON(http.StatusOK, gin.H{"success": true})
 	}
+
+	ctx.JSON(http.StatusOK, gin.H{"success": false, "error": "room not found"})
 }
 
 func showDevices(ctx *gin.Context) {
@@ -89,24 +93,38 @@ func offDevice(ctx *gin.Context) {
 		log.Println("error marshalling data")
 	}
 
-	devStatus := globalinfo.ServerInfo.Rooms[roomName].DeviceInfo[ip]
+	if devStatus, ok := globalinfo.ServerInfo.Rooms[roomName].DeviceInfo[ip]; ok {
+		if deviceType, ok := globalinfo.ServerInfo.Rooms[roomName].Devices[ip]; ok {
+			if deviceType.Type == "wled" {
+				resp, err := http.Post("http://"+ip+"/json", "application/json", bytes.NewBuffer(marshalled))
+				if err != nil {
+					log.Println("error")
+					log.Println(err)
 
-	if globalinfo.ServerInfo.Rooms[roomName].Devices[ip].Type == "wled" {
-		resp, err := http.Post("http://"+ip+"/json", "application/json", bytes.NewBuffer(marshalled))
-		if err != nil {
-			log.Println("error")
-			log.Println(err)
+					ctx.JSON(http.StatusOK, gin.H{
+						"success": false,
+						"error":   "failed to post to device",
+					})
+				}
+
+				fmt.Println(resp)
+				// need to check if resp is success also
+
+				defer resp.Body.Close()
+			}
+
+			devStatus.On = false
+			globalinfo.ServerInfo.Rooms[roomName].DeviceInfo[ip] = devStatus
+
+			ctx.JSON(http.StatusOK, gin.H{
+				"success": true,
+			})
 		}
-
-		fmt.Println(resp)
-		defer resp.Body.Close()
 	}
 
-	devStatus.On = false
-	globalinfo.ServerInfo.Rooms[roomName].DeviceInfo[ip] = devStatus
-
 	ctx.JSON(http.StatusOK, gin.H{
-		"success": true,
+		"success": false,
+		"error":   "roomname or ip address not found",
 	})
 }
 
@@ -150,22 +168,37 @@ func getWledConfigs(ctx *gin.Context) {
 
 	fmt.Println("ip addr to find config is:", ip)
 
-	resp, err := http.Get("http://" + ip + "/json")
-	if err != nil {
-		log.Println("error retrieving wled configs")
+	client := &http.Client{
+		Timeout: time.Second * 3,
 	}
 
+	resp, err := client.Get("http://" + ip + "/json")
+	if err != nil {
+		log.Println("error retrieving wled configs")
+		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
+			"success": false,
+			"error":   "error retrieving wled configs",
+		})
+		return
+	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		log.Println("error reading wled configs")
+		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
+			"success": false,
+			"error":   "error reading wled configs",
+		})
+		return
 	}
 
 	json.Unmarshal(body, &wledConfig)
 
-	fmt.Println(wledConfig)
-	ctx.JSON(http.StatusOK, wledConfig)
+	ctx.JSON(http.StatusOK, gin.H{
+		"data":    wledConfig.State,
+		"success": true,
+	})
 }
 
 func setWled(ctx *gin.Context) {
@@ -178,16 +211,36 @@ func setWled(ctx *gin.Context) {
 	err := ctx.BindJSON(&wledState)
 	if err != nil {
 		log.Println("error binding to wled state")
+		ctx.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"error":   "error binding wled state",
+		})
 	}
 
 	marshalled, err := json.Marshal(wledState)
 	if err != nil {
 		log.Println("error marshalling data")
+		ctx.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"error":   "error marshalling data",
+		})
 	}
 	fmt.Println(wledState)
 
-	http.Post("http://"+ip+"/json", "application/json", bytes.NewBuffer(marshalled))
+	resp, err := http.Post("http://"+ip+"/json", "application/json", bytes.NewBuffer(marshalled))
+	if err != nil {
+		log.Println("error posting to device ip")
+		ctx.JSON(http.StatusOK, gin.H{
+			"success": false,
+			"error":   "error posting to device ip",
+		})
+	}
 
+	defer resp.Body.Close()
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+	})
 }
 
 func discoverNetworkDevices(ctx *gin.Context) {
