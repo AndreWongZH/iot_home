@@ -46,12 +46,15 @@ const createDevStatus string = `
 
 const getRoomId string = `SELECT room_id FROM rooms WHERE name=?`
 const insertNewRoom string = `INSERT INTO rooms (name) VALUES (?)`
-const getRooms string = `SELECT rooms.name, count(*) FROM rooms JOIN deviceInfo WHERE rooms.room_id = deviceInfo.room_id GROUP BY deviceInfo.room_id`
+const getRooms string = `SELECT rooms.name, count(deviceInfo.room_id) FROM rooms LEFT JOIN deviceInfo ON rooms.room_id = deviceInfo.room_id GROUP BY rooms.name`
 
 const insertNewDevInfo string = `INSERT INTO deviceInfo (room_id, name, ipaddr, type) VALUES (?, ? ,? ,?)`
 const insertNewDevStatus string = `INSERT INTO deviceStatus (device_id, connected, on_state) VALUES (?, ? ,?)`
 
 const getDeviceInfoByRoom string = `SELECT dev.name, dev.ipaddr, dev.type, dev.connected, dev.on_state FROM rooms JOIN (SELECT * FROM deviceInfo JOIN deviceStatus WHERE deviceInfo.device_id = deviceStatus.device_id) as dev WHERE rooms.room_id = dev.room_id and rooms.name=?`
+const getDeviceInfo string = `SELECT dev.device_id, dev.name, dev.type, dev.connected, dev.on_state FROM rooms JOIN (SELECT * FROM deviceInfo JOIN deviceStatus WHERE deviceInfo.device_id = deviceStatus.device_id) as dev WHERE rooms.room_id = dev.room_id and rooms.name=? and dev.ipaddr=?`
+
+const updateDeviceStatus string = `UPDATE deviceStatus SET on_state=? WHERE device_id=?`
 
 const deleteNewRoom string = `DELETE FROM rooms WHERE name="?"`
 
@@ -146,6 +149,28 @@ func (s *DatabaseManager) AddDevice(dev models.RegisteredDevice, roomName string
 	return nil
 }
 
+func (s *DatabaseManager) UpdateDevStatus(device_id int, on_state int) error {
+	_, err := s.Db.Exec(updateDeviceStatus, on_state, device_id)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
+func (s *DatabaseManager) GetDevice(roomName string, ipAddr string) (int, models.RegisteredDevice, models.DeviceStatus, error) {
+	row := s.Db.QueryRow(getDeviceInfo, roomName, ipAddr)
+
+	devInfo := models.RegisteredDevice{}
+	devStatus := models.DeviceStatus{}
+	var device_id int
+	if err := row.Scan(&device_id, &devInfo.Nickname, &devInfo.Type, &devStatus.Status, &devStatus.On); err == sql.ErrNoRows {
+		return device_id, devInfo, devStatus, err
+	}
+
+	return device_id, devInfo, devStatus, nil
+}
+
 func (s *DatabaseManager) GetDevices(roomName string) ([]models.RegisteredDevice, map[string]models.DeviceStatus, error) {
 	rows, err := s.Db.Query(getDeviceInfoByRoom, roomName)
 	if err != nil {
@@ -196,4 +221,18 @@ func (s *DatabaseManager) GetRooms() ([]models.RoomInfo, error) {
 	}
 
 	return rooms, nil
+}
+
+func PopulateDatabase() {
+
+	Dbman.AddRoom(models.RoomInfo{Name: "kekw"})
+	Dbman.AddRoom(models.RoomInfo{Name: "bedroom"})
+	Dbman.AddDevice(models.RegisteredDevice{Nickname: "andre", Type: "wled", Ipaddr: "192.168.1.1", Hostname: "123"}, "kekw")
+	Dbman.AddDevice(models.RegisteredDevice{Nickname: "betty", Type: "wled", Ipaddr: "192.168.1.2", Hostname: "456"}, "kekw")
+	Dbman.AddDevice(models.RegisteredDevice{Nickname: "cathy", Type: "wled", Ipaddr: "192.168.1.3", Hostname: "789"}, "kekw")
+	Dbman.AddDevice(models.RegisteredDevice{Nickname: "deuick", Type: "wled", Ipaddr: "192.168.1.4", Hostname: "023"}, "kekw")
+	Dbman.AddDevice(models.RegisteredDevice{Nickname: "andre", Type: "wled", Ipaddr: "192.168.1.1", Hostname: "123"}, "bedroom")
+	Dbman.AddDevice(models.RegisteredDevice{Nickname: "betty", Type: "wled", Ipaddr: "192.168.1.2", Hostname: "456"}, "bedroom")
+	Dbman.AddDevice(models.RegisteredDevice{Nickname: "cathy", Type: "wled", Ipaddr: "192.168.1.3", Hostname: "789"}, "bedroom")
+	Dbman.AddDevice(models.RegisteredDevice{Nickname: "deuick", Type: "wled", Ipaddr: "192.168.1.4", Hostname: "023"}, "bedroom")
 }

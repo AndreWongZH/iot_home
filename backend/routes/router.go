@@ -7,12 +7,12 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func GinMiddleware(allowOrigin string) gin.HandlerFunc {
-	return func(c *gin.Context) {
-		c.Writer.Header().Set("Access-Control-Allow-Origin", allowOrigin)
-		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-	}
-}
+// func GinMiddleware(allowOrigin string) gin.HandlerFunc {
+// 	return func(c *gin.Context) {
+// 		c.Writer.Header().Set("Access-Control-Allow-Origin", allowOrigin)
+// 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
+// 	}
+// }
 
 // func InitRouter(socketServer *socketio.Server) *gin.Engine {
 func InitRouter() *gin.Engine {
@@ -37,13 +37,12 @@ func InitRouter() *gin.Engine {
 	r.POST("/:roomname/add_device", addDevice)
 	r.GET("/:roomname/devices", showDevices)
 
-	r.POST("/:roomname/:ip/off", offDevice)
-	r.POST("/:roomname/:ip/on", onDevice)
+	r.POST("/:roomname/:ip/:toggle", toggleDevice)
 
 	r.GET("/:roomname/wled_config/:ip", getWledConfigs)
 	r.POST("/:roomname/wled_config/set/:ip", setWled)
 
-	r.GET("/discover", discoverNetworkDevices)
+	// r.GET("/discover", discoverNetworkDevices)
 
 	// r.GET("/socket.io/*any", gin.WrapH(socketServer))
 	// r.POST("/socket.io/*any", gin.WrapH(socketServer))
