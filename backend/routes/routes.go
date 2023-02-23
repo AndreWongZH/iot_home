@@ -9,6 +9,7 @@ import (
 	"net/http"
 	"time"
 
+	"github.com/AndreWongZH/iothome/database"
 	"github.com/AndreWongZH/iothome/globalinfo"
 	"github.com/AndreWongZH/iothome/models"
 	"github.com/AndreWongZH/iothome/wled"
@@ -20,7 +21,7 @@ func getServerStatus(ctx *gin.Context) {
 }
 
 func createRoom(ctx *gin.Context) {
-	var room models.Room
+	var room models.RoomInfo
 
 	err := ctx.BindJSON(&room)
 	if err != nil {
@@ -29,19 +30,25 @@ func createRoom(ctx *gin.Context) {
 		return
 	}
 
-	room.Devices = make(map[string]models.RegisteredDevice)
-	room.DeviceInfo = make(map[string]models.DeviceStatus)
-	globalinfo.ServerInfo.Rooms[room.Name] = room
+	err = database.Dbman.AddRoom(room)
+	if err != nil {
+		log.Println(err)
+	}
 }
 
 func getRooms(ctx *gin.Context) {
-	var roomlist = []models.Room{}
-
-	for _, room := range globalinfo.ServerInfo.Rooms {
-		roomlist = append(roomlist, room)
+	rooms, err := database.Dbman.GetRooms()
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
+			"success": false,
+			"error":   err,
+		})
 	}
 
-	ctx.JSON(http.StatusOK, roomlist)
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    rooms,
+	})
 }
 
 func addDevice(ctx *gin.Context) {
@@ -54,30 +61,31 @@ func addDevice(ctx *gin.Context) {
 		log.Println("error binding json data to variable")
 	}
 
-	if room, ok := globalinfo.ServerInfo.Rooms[roomName]; ok {
-		room.Devices[registeredDevice.Ipaddr] = registeredDevice
-		room.DeviceInfo[registeredDevice.Ipaddr] = models.DeviceStatus{Status: false, On: false}
-		globalinfo.ServerInfo.Rooms[roomName] = room
-
-		fmt.Println("device :", registeredDevice, "is added")
-		ctx.JSON(http.StatusOK, gin.H{"success": true})
+	err = database.Dbman.AddDevice(registeredDevice, roomName)
+	if err != nil {
+		log.Println(err)
+		ctx.JSON(http.StatusOK, gin.H{"success": false, "error": err})
 	}
 
-	ctx.JSON(http.StatusOK, gin.H{"success": false, "error": "room not found"})
+	ctx.JSON(http.StatusOK, gin.H{"success": true})
 }
 
 func showDevices(ctx *gin.Context) {
 	roomName := ctx.Param("roomname")
 
-	devList := make([]models.RegisteredDevice, 0, len(globalinfo.ServerInfo.Rooms[roomName].Devices))
+	devList, devStatus, err := database.Dbman.GetDevices(roomName)
 
-	for _, value := range globalinfo.ServerInfo.Rooms[roomName].Devices {
-		devList = append(devList, value)
+	if err != nil {
+		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
+			"success": false,
+			"error":   err,
+		})
 	}
 
 	ctx.JSON(http.StatusOK, gin.H{
+		"success":   true,
 		"devList":   devList,
-		"devStatus": globalinfo.ServerInfo.Rooms[roomName].DeviceInfo,
+		"devStatus": devStatus,
 	})
 }
 

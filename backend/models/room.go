@@ -1,11 +1,6 @@
 package models
 
-type Room struct {
-	Name       string                      `json:"name"`
-	Devices    map[string]RegisteredDevice `json:"devices"`
-	DeviceInfo map[string]DeviceStatus     `json:"deviceInfo"`
+type RoomInfo struct {
+	Name  string `json:"name"`
+	Count int    `json:"count"`
 }
-
-// type RoomResponse struct {
-// 	Name string ``
-// }
