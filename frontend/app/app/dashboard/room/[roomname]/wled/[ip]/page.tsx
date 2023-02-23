@@ -3,8 +3,8 @@ import { BackHeader } from "@/components/header";
 import { Slider } from "@/components/slider";
 import { InputsHandler } from "./inputshandler";
 
-async function getWledInfo(roomname, ip) {
-  const res = await fetch(`http://127.0.0.1:3001/${roomname}/wled_config/${ip}`)
+async function getWledInfo(roomName: string, ip: string) {
+  const res = await fetch(`http://127.0.0.1:3001/${roomName}/wled_config/${ip}`)
 
   if (!res.ok) {
     throw new Error("failed to fetch wled config")
@@ -13,7 +13,7 @@ async function getWledInfo(roomname, ip) {
   return res.json()
 }
 
-export default async function Page({ params }) {
+export default async function Page({ params } : { params: {roomname: string, ip: string} }) {
   const wledInfo = await getWledInfo(params.roomname, params.ip)
   console.log(wledInfo)
 

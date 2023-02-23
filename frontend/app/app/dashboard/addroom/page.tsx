@@ -1,13 +1,14 @@
 "use client"
 
 import { BackHeader } from '@/components/header';
-import { useState } from 'react';
+import { useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 
 export default function Page() {
-
+  const router = useRouter();
   const [room, setRoom] = useState("");
 
-  async function addRoom(event) {
+  async function addRoom(event: React.SyntheticEvent) {
     event.preventDefault(); 
     console.log("adding room")
 

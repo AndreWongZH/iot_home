@@ -38,7 +38,7 @@ export const InputsHandler = ({ default_wled_info, roomname, ip }) => {
     }))
   }
 
-  const onBriChange = (bri) => {
+  const onBriChange = (bri: string) => {
     setWledInfo((prev) => ({
       ...prev,
       bri: parseInt(bri)

@@ -14,8 +14,8 @@ const obj = [
   { nickname: "Air purifier", state: "on", type: "purifier" },
 ]
 
-async function getDeviceData(roomname) {
-  const res = await fetch(`http://127.0.0.1:3001/${roomname}/devices`, {
+async function getDeviceData(roomName) {
+  const res = await fetch(`http://127.0.0.1:3001/${roomName}/devices`, {
     cache: 'no-store'
   })
 
@@ -28,19 +28,18 @@ async function getDeviceData(roomname) {
 
 
 export default async function Page({ params }) {
-  console.log(params.roomname)
-  const devicesData = await getDeviceData(params.roomname)
-  console.log(devicesData)
+  const {success, data} = await getDeviceData(params.roomname)
+  console.log(data)
   
   return (
     <>
-      <LinkHeader headerText={"Welcome home, andre"} href={`/app/dashboard/room/${params.roomname}/adddevice`}>
+      <LinkHeader showHome={true} headerText={"Welcome home, andre"} href={`/app/dashboard/room/${params.roomname}/adddevice`}>
         <AddButton />
       </LinkHeader>
       <div className="flex flex-wrap gap-5 justify-center">
       {
-        devicesData.devList.map((dev) => {
-          return <Device key={dev.nickname} nickname={dev.nickname} devStatus={devicesData.devStatus[dev.ipaddr]} type={dev.type} roomname={params.roomname} ip={dev.ipaddr} />
+        data.devList.map((dev) => {
+          return <Device key={dev.nickname} nickname={dev.nickname} devStatus={data.devStatus[dev.ipaddr]} type={dev.type} roomname={params.roomname} ip={dev.ipaddr} />
         })
       }
       </div>

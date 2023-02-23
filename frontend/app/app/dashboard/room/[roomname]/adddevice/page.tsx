@@ -1,10 +1,11 @@
 "use client"
 
 import { BackHeader } from '@/components/header';
-import { usePathname } from 'next/navigation';
-import { useState } from 'react';
+import { usePathname, useRouter } from 'next/navigation';
+import React, { useState } from 'react';
 
 export default function Page() {
+  const router = useRouter();
   const pathname = usePathname()
   const roomname = pathname?.split("/")[4]
 
@@ -13,7 +14,7 @@ export default function Page() {
   const [ipaddr, setIpaddr] = useState("");
   const [type, setType] = useState("");
 
-  async function addDevice(event) {
+  async function addDevice(event: React.SyntheticEvent) {
     event.preventDefault(); 
     console.log("adding device")
 
@@ -83,7 +84,7 @@ export default function Page() {
 
             <button
               className="w-full hover:shadow-lg rounded-md bg-[#6A64F1] py-3 mt-3 text-center text-base font-semibold text-white outline-none"
-              onClick={(event) => { addDevice(event) }}
+              onClick={(event: React.SyntheticEvent) => { addDevice(event) }}
             >
               Add device
             </button>
