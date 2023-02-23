@@ -1,12 +1,14 @@
 package main
 
 import (
+	"github.com/AndreWongZH/iothome/database"
 	"github.com/AndreWongZH/iothome/globalinfo"
 	"github.com/AndreWongZH/iothome/routes"
 )
 
 func main() {
-	globalinfo.InitializeGlobals()
+	db := database.InitDatabase()
+	globalinfo.InitializeGlobals(db)
 
 	// socketServer := socket.InitSocket()
 
