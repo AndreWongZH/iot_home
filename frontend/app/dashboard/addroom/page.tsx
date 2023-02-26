@@ -26,7 +26,7 @@ export default function Page() {
       }
     )
     
-    router.push(`/app/dashboard/room/${room}`)
+    router.push(`/dashboard/room/${room}`)
   }
 
   return (

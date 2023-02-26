@@ -1,13 +1,11 @@
 "use client"
 
 import { BackHeader } from '@/components/header';
-import { usePathname, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
-export default function Page() {
+export default function Page({ params }) {
   const router = useRouter();
-  const pathname = usePathname()
-  const roomname = pathname?.split("/")[4]
 
   const [name, setName] = useState("");
   const [ipaddr, setIpaddr] = useState("");
@@ -25,7 +23,7 @@ export default function Page() {
 
     console.log(jsonData)
 
-    await fetch(`http://127.0.0.1:3001/${roomname}/add_device`,
+    await fetch(`http://127.0.0.1:3001/${params.roomname}/add_device`,
       {
         body: JSON.stringify(jsonData),
         headers: {
@@ -35,12 +33,12 @@ export default function Page() {
       }
     )
 
-    router.replace(`/app/dashboard/room/${roomname}`)
+    router.replace(`/dashboard/room/${params.roomname}`)
   }
 
   return (
     <>
-      <BackHeader headerText={`Add a device to ${roomname}`}/>
+      <BackHeader headerText={`Add a device to ${params.roomname}`}/>
       <div className="flex flex-col items-center">
         <form>
           <div className="flex flex-col justify-center items-center gap-y-2.5">

@@ -41,7 +41,7 @@ const getDeviceIcon = (type) => {
   return <TbDeviceSpeaker size={70} />
 }
 
-export const Device = ({ nickname, devStatus, type, roomname, ip }) => {
+export const Device = ({ name, devStatus, type, roomname, ip }) => {
   let icon = getDeviceIcon(type)
   const [status, setStatus] = useState(devStatus.status)
   const [on, setOn] = useState(devStatus.on)
@@ -72,7 +72,7 @@ export const Device = ({ nickname, devStatus, type, roomname, ip }) => {
         {icon}
       </div>
       <div className='relative pl-3 group-hover:text-white'>
-        <h3 className="font-bold text-lg">{nickname}</h3>
+        <h3 className="font-bold text-lg">{name}</h3>
         {/* <p className="font-light text-left">{status ? on ? "on" : "off" : "disconnected"}</p> */}
         <p className="font-light text-left">{on ? "on" : "off"}</p>
       </div>

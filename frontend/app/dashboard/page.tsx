@@ -1,14 +1,15 @@
 
 import Link from 'next/link';
-
-import { AddButton } from '../../../components/button'
+import { AddButton } from '@/components/button';
 import { LinkHeader } from './linkheader';
 
 
 async function getRoomData() {
-
+  console.log("always fetching")
   try {
-    const res = await fetch('http://127.0.0.1:3001/rooms')
+    const res = await fetch('http://127.0.0.1:3001/rooms', {
+      cache: 'no-store'
+    })
     if (!res.ok) {
       throw new Error("failed to fetch rooms")
     }
@@ -22,7 +23,7 @@ async function getRoomData() {
 const RoomTile = ({name, count} :{ name: string, count: number }) => {
   return (
     <button className="relative h-28 text-center flex flex-col items-center justify-center rounded-lg hover:bg-roomtile-highlight">
-      <Link className="z-20 absolute h-28 w-full" href={`/app/dashboard/room/${name}`}></Link>
+      <Link className="z-20 absolute h-28 w-full" href={`/dashboard/room/${name}`}></Link>
       <div className="absolute flex flex-col items-center justify-center z-10">
         <h1 className="text-white font-bold capitalize text-2xl">{name}</h1>
         <p className="text-white font-bold capitalize text-xs">{count} devices connected</p>
@@ -56,7 +57,7 @@ export default async function Page() {
   console.log(data)
   return (
     <>
-      <LinkHeader headerText={"IOT Home"} href={`/app/dashboard/addroom`} showHome={false}>
+      <LinkHeader headerText={"IOT Home"} href={`/dashboard/addroom`} showHome={false}>
         <AddButton />
       </LinkHeader>
       <div className="flex flex-col gap-5 px-4">
