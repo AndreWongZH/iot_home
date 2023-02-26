@@ -3,7 +3,7 @@ package models
 type RegisteredDevice struct {
 	Hostname string `json:"hostname"`
 	Ipaddr   string `json:"ipaddr"`
-	Nickname string `json:"nickname"`
+	Name     string `json:"name"`
 	Type     string `json:"type"`
 }
 

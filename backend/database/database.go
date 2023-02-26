@@ -127,7 +127,7 @@ func (s *DatabaseManager) AddDevice(dev models.RegisteredDevice, roomName string
 		return err
 	}
 
-	res, err := s.Db.Exec(insertNewDevInfo, roomId, dev.Nickname, dev.Ipaddr, dev.Type)
+	res, err := s.Db.Exec(insertNewDevInfo, roomId, dev.Name, dev.Ipaddr, dev.Type)
 
 	if err != nil {
 		log.Println("error inserting entry into deviceInfo table")
@@ -164,7 +164,7 @@ func (s *DatabaseManager) GetDevice(roomName string, ipAddr string) (int, models
 	devInfo := models.RegisteredDevice{}
 	devStatus := models.DeviceStatus{}
 	var device_id int
-	if err := row.Scan(&device_id, &devInfo.Nickname, &devInfo.Type, &devStatus.Status, &devStatus.On); err == sql.ErrNoRows {
+	if err := row.Scan(&device_id, &devInfo.Name, &devInfo.Type, &devStatus.Status, &devStatus.On); err == sql.ErrNoRows {
 		return device_id, devInfo, devStatus, err
 	}
 
@@ -185,7 +185,7 @@ func (s *DatabaseManager) GetDevices(roomName string) ([]models.RegisteredDevice
 	for rows.Next() {
 		rd := models.RegisteredDevice{}
 		ds := models.DeviceStatus{}
-		err = rows.Scan(&rd.Nickname, &rd.Ipaddr, &rd.Type, &ds.Status, &ds.On)
+		err = rows.Scan(&rd.Name, &rd.Ipaddr, &rd.Type, &ds.Status, &ds.On)
 		if err != nil {
 			log.Println("failed to scan db rows")
 			return nil, nil, err
@@ -227,12 +227,12 @@ func PopulateDatabase() {
 
 	Dbman.AddRoom(models.RoomInfo{Name: "kekw"})
 	Dbman.AddRoom(models.RoomInfo{Name: "bedroom"})
-	Dbman.AddDevice(models.RegisteredDevice{Nickname: "andre", Type: "wled", Ipaddr: "192.168.1.1", Hostname: "123"}, "kekw")
-	Dbman.AddDevice(models.RegisteredDevice{Nickname: "betty", Type: "wled", Ipaddr: "192.168.1.2", Hostname: "456"}, "kekw")
-	Dbman.AddDevice(models.RegisteredDevice{Nickname: "cathy", Type: "wled", Ipaddr: "192.168.1.3", Hostname: "789"}, "kekw")
-	Dbman.AddDevice(models.RegisteredDevice{Nickname: "deuick", Type: "wled", Ipaddr: "192.168.1.4", Hostname: "023"}, "kekw")
-	Dbman.AddDevice(models.RegisteredDevice{Nickname: "andre", Type: "wled", Ipaddr: "192.168.1.1", Hostname: "123"}, "bedroom")
-	Dbman.AddDevice(models.RegisteredDevice{Nickname: "betty", Type: "wled", Ipaddr: "192.168.1.2", Hostname: "456"}, "bedroom")
-	Dbman.AddDevice(models.RegisteredDevice{Nickname: "cathy", Type: "wled", Ipaddr: "192.168.1.3", Hostname: "789"}, "bedroom")
-	Dbman.AddDevice(models.RegisteredDevice{Nickname: "deuick", Type: "wled", Ipaddr: "192.168.1.4", Hostname: "023"}, "bedroom")
+	Dbman.AddDevice(models.RegisteredDevice{Name: "andre", Type: "wled", Ipaddr: "192.168.1.1", Hostname: "123"}, "kekw")
+	Dbman.AddDevice(models.RegisteredDevice{Name: "betty", Type: "wled", Ipaddr: "192.168.1.2", Hostname: "456"}, "kekw")
+	Dbman.AddDevice(models.RegisteredDevice{Name: "cathy", Type: "wled", Ipaddr: "192.168.1.3", Hostname: "789"}, "kekw")
+	Dbman.AddDevice(models.RegisteredDevice{Name: "deuick", Type: "wled", Ipaddr: "192.168.1.4", Hostname: "023"}, "kekw")
+	Dbman.AddDevice(models.RegisteredDevice{Name: "andre", Type: "wled", Ipaddr: "192.168.1.1", Hostname: "123"}, "bedroom")
+	Dbman.AddDevice(models.RegisteredDevice{Name: "betty", Type: "wled", Ipaddr: "192.168.1.2", Hostname: "456"}, "bedroom")
+	Dbman.AddDevice(models.RegisteredDevice{Name: "cathy", Type: "wled", Ipaddr: "192.168.1.3", Hostname: "789"}, "bedroom")
+	Dbman.AddDevice(models.RegisteredDevice{Name: "deuick", Type: "wled", Ipaddr: "192.168.1.4", Hostname: "023"}, "bedroom")
 }
