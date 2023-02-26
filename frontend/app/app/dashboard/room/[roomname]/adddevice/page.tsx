@@ -9,8 +9,7 @@ export default function Page() {
   const pathname = usePathname()
   const roomname = pathname?.split("/")[4]
 
-  const [nickname, setNickname] = useState("");
-  const [hostname, setHostname] = useState("");
+  const [name, setName] = useState("");
   const [ipaddr, setIpaddr] = useState("");
   const [type, setType] = useState("");
 
@@ -19,8 +18,7 @@ export default function Page() {
     console.log("adding device")
 
     const jsonData = {
-      nickname: nickname,
-      hostname: hostname,
+      name: name,
       ipaddr: ipaddr,
       type: type
     }
@@ -42,7 +40,7 @@ export default function Page() {
 
   return (
     <>
-      <BackHeader />
+      <BackHeader headerText={`Add a device to ${roomname}`}/>
       <div className="flex flex-col items-center">
         <form>
           <div className="flex flex-col justify-center items-center gap-y-2.5">
@@ -51,16 +49,7 @@ export default function Page() {
               name="nickname"
               id="nickname"
               placeholder="nickname"
-              onChange={(e) => setNickname(e.target.value)}
-              className="rounded-md border border-[#e0e0e0] bg-white py-3 px-3 w-full text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
-            />
-
-            <input
-              type="text"
-              name="hostname"
-              id="hostname"
-              placeholder="hostname"
-              onChange={(e) => setHostname(e.target.value)}
+              onChange={(e) => setName(e.target.value)}
               className="rounded-md border border-[#e0e0e0] bg-white py-3 px-3 w-full text-base font-medium text-[#6B7280] outline-none focus:border-[#6A64F1] focus:shadow-md"
             />
 

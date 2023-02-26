@@ -8,7 +8,7 @@ export const LinkHeader = ({ href, headerText, children, showHome}) => {
       {
         showHome
         ? <Link href={`/app/dashboard`}>
-            <AiFillHome size={35} color={"black"}/>
+            <AiFillHome size={35} color={"#475569"} className="hover:scale-110"/>
           </Link>
         : <></>
       }

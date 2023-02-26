@@ -29,7 +29,6 @@ async function getDeviceData(roomName) {
 
 export default async function Page({ params }) {
   const {success, data} = await getDeviceData(params.roomname)
-  console.log(data)
   
   return (
     <>
@@ -43,6 +42,21 @@ export default async function Page({ params }) {
         })
       }
       </div>
+      {
+        data.devList.length > 0
+          ? <></>
+          :
+          <div className='flex flex-col items-center justify-center'>
+            <h1 className='font-bold text-xl mb-3'>You have no devices</h1>
+            <h2 className='mb-5'>How about adding one now?</h2>
+            
+            <Link className='w-full px-10' href={`/app/dashboard/room/${params.roomname}/adddevice`}>
+              <button className="w-full hover:shadow-lg rounded-md bg-[#6A64F1] py-3 mt-3 text-center text-base font-semibold text-white outline-none">
+                + Add A Device
+              </button>
+            </Link>
+          </div>
+      }
       {/* <Socket /> */}
     </>
   )

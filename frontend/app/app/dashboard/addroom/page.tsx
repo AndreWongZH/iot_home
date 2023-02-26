@@ -31,7 +31,7 @@ export default function Page() {
 
   return (
     <>
-      <BackHeader/>
+      <BackHeader headerText={`Create a room`} />
       <div className="flex flex-col items-center">
         <form>
           <div className="flex flex-col justify-center items-center gap-y-2.5">

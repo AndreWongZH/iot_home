@@ -6,13 +6,17 @@ import { LinkHeader } from './linkheader';
 
 
 async function getRoomData() {
-  const res = await fetch('http://127.0.0.1:3001/rooms')
 
-  if (!res.ok) {
-    throw new Error("failed to fetch rooms")
+  try {
+    const res = await fetch('http://127.0.0.1:3001/rooms')
+    if (!res.ok) {
+      throw new Error("failed to fetch rooms")
+    }
+  
+    return res.json()
+  } catch (error) {
+    throw new Error("failed to reach api endpoint")
   }
-
-  return res.json()
 }
 
 const RoomTile = ({name, count} :{ name: string, count: number }) => {
@@ -52,7 +56,7 @@ export default async function Page() {
   console.log(data)
   return (
     <>
-      <LinkHeader headerText={"Header"} href={`/app/dashboard/addroom`} showHome={false}>
+      <LinkHeader headerText={"IOT Home"} href={`/app/dashboard/addroom`} showHome={false}>
         <AddButton />
       </LinkHeader>
       <div className="flex flex-col gap-5 px-4">
