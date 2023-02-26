@@ -1,5 +1,7 @@
 *.db
 
+.vscode/*
+
 ### NextJS ###
 # Next build dir
 **/.next/
