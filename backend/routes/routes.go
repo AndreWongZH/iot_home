@@ -45,11 +45,13 @@ func createRoom(ctx *gin.Context) {
 	err := ctx.BindJSON(&room)
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	err = database.Dbman.AddRoom(room)
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	sendResultJson(ctx, true, nil, "", nil)
@@ -59,6 +61,7 @@ func getRooms(ctx *gin.Context) {
 	rooms, err := database.Dbman.GetRooms()
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	sendResultJson(ctx, true, nil, "", rooms)
@@ -72,11 +75,13 @@ func addDevice(ctx *gin.Context) {
 	err := ctx.BindJSON(&registeredDevice)
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	err = database.Dbman.AddDevice(registeredDevice, roomName)
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	sendResultJson(ctx, true, nil, "", nil)
@@ -89,6 +94,7 @@ func showDevices(ctx *gin.Context) {
 
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	// ctx.JSON(http.StatusOK, gin.H{
@@ -111,6 +117,7 @@ func toggleDevice(ctx *gin.Context) {
 	device_id, devInfo, _, err := database.Dbman.GetDevice(roomName, ipAddr)
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	if devInfo.Type == "wled" {
@@ -119,11 +126,13 @@ func toggleDevice(ctx *gin.Context) {
 		marshalled, err := json.Marshal(wledSwitch)
 		if err != nil {
 			sendResultJson(ctx, false, err, "", nil)
+			return
 		}
 
 		resp, err := http.Post("http://"+ipAddr+"/json", "application/json", bytes.NewBuffer(marshalled))
 		if err != nil {
 			sendResultJson(ctx, false, err, "", nil)
+			return
 		}
 
 		fmt.Println(resp)
@@ -139,6 +148,7 @@ func toggleDevice(ctx *gin.Context) {
 	err = database.Dbman.UpdateDevStatus(device_id, on_state)
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	sendResultJson(ctx, true, nil, "", nil)
@@ -156,12 +166,14 @@ func getWledConfigs(ctx *gin.Context) {
 	resp, err := client.Get("http://" + ip + "/json")
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	json.Unmarshal(body, &wledConfig)
@@ -179,16 +191,19 @@ func setWled(ctx *gin.Context) {
 	err := ctx.BindJSON(&wledState)
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	marshalled, err := json.Marshal(wledState)
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	resp, err := http.Post("http://"+ip+"/json", "application/json", bytes.NewBuffer(marshalled))
 	if err != nil {
 		sendResultJson(ctx, false, err, "", nil)
+		return
 	}
 
 	defer resp.Body.Close()
