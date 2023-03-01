@@ -4,7 +4,7 @@ import { BackHeader } from '@/components/header';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 
-export default function Page({ params }) {
+export default function Page({ params }: { params: { roomname: string } }) {
   const router = useRouter();
 
   const [name, setName] = useState("");

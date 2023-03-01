@@ -58,7 +58,7 @@ export default async function Page() {
   return (
     <>
       <LinkHeader headerText={"IOT Home"} href={`/dashboard/addroom`} showHome={false}>
-        <AddButton />
+        <AddButton onClick={null}/>
       </LinkHeader>
       <div className="flex flex-col gap-5 px-4">
         {

@@ -1,9 +1,8 @@
 "use client"
 
 import { useState } from 'react'
-import styles from './slider.css'
 
-export const Slider = ({ defaultValue, onBriChange }) => {
+export const Slider = ({ defaultValue, onBriChange }: { defaultValue: number, onBriChange: Function }) => {
   const [value, setValue] = useState(defaultValue)
 
   return (
@@ -13,7 +12,7 @@ export const Slider = ({ defaultValue, onBriChange }) => {
         className="rounded-lg overflow-hidden appearance-none bg-gray-400 h-3 w-128" type="range" min="1" max="255" step="1"
         value={value}
         onChange={(e) => {
-          setValue(e.target.value)
+          setValue(parseInt(e.target.value))
           onBriChange(e.target.value)
         }}
       />

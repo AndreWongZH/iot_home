@@ -5,7 +5,7 @@ const data = [
 ]
 
 
-const DiscoveredAddress = ({macname, ipaddr, macaddr}) => {
+const DiscoveredAddress = ({ macname, ipaddr, macaddr }: { macname: string, ipaddr: string, macaddr: string }) => {
   return (
     <div className="flex items-center justify-between h-14 px-4 py-6 my-5 hover:bg-highlight hover:rounded-md">
       <div className="flex flex-col">

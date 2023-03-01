@@ -5,13 +5,36 @@ import { Select } from '@/components/select'
 import { Slider } from '@/components/slider'
 import { effects, palettes } from '@/data/wled'
 import { useState } from 'react'
+import { Color } from 'react-color-palette'
 
-export const InputsHandler = ({ default_wled_info, roomname, ip }) => {
-  const [wledInfo, setWledInfo] = useState(default_wled_info)
+const emptyWledConfig = {
+  bri: 0,
+  seg: [
+    {
+      col: [[0,0,0]],
+      fx: 0,
+      pal: 0
+    }
+  ]
+}
+
+interface Seg {
+  col: Array<Array<number>>
+  fx: number;
+  pal: number;
+}
+
+interface WledConfig {
+  bri: number;
+  seg: Array<Seg>;
+}
+
+export const InputsHandler = ({ default_wled_info, roomName, ip }: { default_wled_info: WledConfig, roomName: string, ip: string }) => {
+  const [wledInfo, setWledInfo] = useState(default_wled_info ? default_wled_info : emptyWledConfig)
 
   const setWledConfig = async () => {
 
-    await fetch(`http://127.0.0.1:3001/${roomname}/wled_config/set/${ip}`,
+    await fetch(`http://127.0.0.1:3001/${roomName}/wled_config/set/${ip}`,
       {
         body: JSON.stringify(wledInfo),
         headers: {
@@ -22,7 +45,7 @@ export const InputsHandler = ({ default_wled_info, roomname, ip }) => {
     )
   }
 
-  const onColorChange = (color) => {
+  const onColorChange = (color: Color) => {
     setWledInfo((prev) => ({
       ...prev,
       seg: [

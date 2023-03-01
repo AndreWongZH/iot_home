@@ -5,8 +5,9 @@ import { Socket } from '@/components/socket';
 import { AddButton, Device } from '@/components/button'
 import Link from 'next/link'
 import { LinkHeader } from '../../linkheader';
+import { DeviceList } from './deviceList';
 
-async function getDeviceData(roomName) {
+async function getDeviceData(roomName: string) {
   const res = await fetch(`http://127.0.0.1:3001/${roomName}/devices`, {
     cache: 'no-store'
   })
@@ -19,22 +20,17 @@ async function getDeviceData(roomName) {
 }
 
 
-export default async function Page({ params }) {
+export default async function Page({ params }: { params: {roomname: string;}}) {
   const {success, data} = await getDeviceData(params.roomname)
   console.log(data)
 
   return (
     <>
-      <LinkHeader showHome={true} headerText={"Welcome home, andre"} href={`/dashboard/room/${params.roomname}/adddevice`}>
-        <AddButton />
+      <LinkHeader disableMargin={true} showHome={true} headerText={"Welcome home, XXX"} href={`/dashboard/room/${params.roomname}/adddevice`}>
+        <AddButton onClick={null}/>
       </LinkHeader>
-      <div className="flex flex-wrap gap-5 justify-center">
-      {
-        data.devList.map((dev) => {
-          return <Device key={dev.name} name={dev.name} devStatus={data.devStatus[dev.ipaddr]} type={dev.type} roomname={params.roomname} ip={dev.ipaddr} />
-        })
-      }
-      </div>
+
+      <DeviceList data={data} roomName={params.roomname}/>
       {
         data.devList.length > 0
           ? <></>

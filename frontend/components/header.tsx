@@ -1,12 +1,11 @@
 "use client"
 
-import { AppRouterInstance } from "next/dist/shared/lib/app-router-context"
 import Link from "next/link"
 import { BackButton } from "./button"
 import { useRouter } from 'next/navigation';
 
 
-export const BackHeader = ({ headerText }) => {
+export const BackHeader = ({ headerText }: { headerText: string}) => {
   const router = useRouter();
 
   return (
