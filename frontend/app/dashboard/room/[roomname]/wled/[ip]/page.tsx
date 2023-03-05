@@ -1,33 +1,35 @@
+"use client"
+
+import instance from "@/components/axiosInst";
 import { BackHeader } from "@/components/header";
+import { useEffect, useState } from "react";
 import { InputsHandler } from "./inputshandler";
 
-async function getWledInfo(roomName: string, ip: string) {
-  const res = await fetch(`http://127.0.0.1:3001/${roomName}/wled_config/${ip}`)
+export default function Page({ params } : { params: {roomname: string, ip: string} }) {
+  // const [wledInfo, setWledInfo] = useState(emptyWledConfig)
+  // const [success, setSuccess] = useState(false)
 
-  if (!res.ok) {
-    throw new Error("failed to fetch wled config")
-  }
+  // useEffect(() => {
+  //   getWledInfo()
+  // }, [])
 
-  return res.json()
-}
+  // const getWledInfo = () => {
+  //   instance.get(`${params.roomname}/wled_config/${params.ip}`)
+  //   .then(function (resp) {
+  //     const {success, data} = resp.data
+  //     console.log(data)
+  //     setWledInfo(data)
+  //     setSuccess(success)
+  //   })
+  //   .catch(function (err) {
 
-export default async function Page({ params } : { params: {roomname: string, ip: string} }) {
-  const wledInfo = await getWledInfo(params.roomname, params.ip)
-  console.log(wledInfo)
+  //   })
+  // }
 
   return (
     <div className="w-full">
       <BackHeader headerText="wled config"/>
-      {
-        wledInfo.success 
-        ? <></>
-        : 
-        <div className="mx-auto text-center mb-4 block w-3/4 rounded-lg bg-orange-500 p-4 text-base leading-5 text-white opacity-100">
-          <h1 className="font-bold mb-2">Error fetching wled data</h1>
-          <h1 className="font-bold">Wled device is offline</h1>
-        </div>
-      }
-      <InputsHandler roomName={params.roomname} ip={params.ip} default_wled_info={wledInfo.data} />
+      <InputsHandler roomName={params.roomname} ip={params.ip} />
       
     </div>
   )

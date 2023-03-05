@@ -1,24 +1,10 @@
+"use client"
 
 import Link from 'next/link';
 import { AddButton } from '@/components/button';
 import { LinkHeader } from './linkheader';
-
-
-async function getRoomData() {
-  console.log("always fetching")
-  try {
-    const res = await fetch('http://127.0.0.1:3001/rooms', {
-      cache: 'no-store'
-    })
-    if (!res.ok) {
-      throw new Error("failed to fetch rooms")
-    }
-  
-    return res.json()
-  } catch (error) {
-    throw new Error("failed to reach api endpoint")
-  }
-}
+import instance from '@/components/axiosInst';
+import { useEffect, useState } from 'react';
 
 const RoomTile = ({name, count} :{ name: string, count: number }) => {
   return (
@@ -52,8 +38,32 @@ interface RegisteredDevice {
   type: string;
 }
 
-export default async function Page() {
-  const {success, data} : {success: Boolean, data: Room[]} = await getRoomData();
+export default function Page() {
+  // const data = await getRoomData()
+  // console.log(data)
+  // const {success, data} : {success: Boolean, data: Room[]} = await getRoomData();
+  // console.log(data)
+
+  const [data, setData] = useState([])
+  const [error, setError] = useState("")
+
+  useEffect(() => {
+    getRoomData()
+  }, [])
+
+  const getRoomData = () => {
+    instance.get('rooms')
+      .then(function (resp) {
+        const {success, data} = resp.data
+        console.log(success)
+        setData(data)
+      })
+      .catch(function (err) {
+
+      })
+  }
+
+
   console.log(data)
   return (
     <>

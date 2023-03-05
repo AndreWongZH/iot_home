@@ -1,5 +1,6 @@
 "use client"
 
+import instance from '@/components/axiosInst';
 import { BackHeader } from '@/components/header';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
@@ -23,15 +24,14 @@ export default function Page({ params }: { params: { roomname: string } }) {
 
     console.log(jsonData)
 
-    await fetch(`http://127.0.0.1:3001/${params.roomname}/add_device`,
-      {
-        body: JSON.stringify(jsonData),
-        headers: {
-          'Content-Type': 'application/json'
-        },
-        method: 'POST'
-      }
-    )
+    instance.post(`${params.roomname}/add_device`, jsonData)
+    .then(function (resp) {
+      const {success, data} = resp.data
+      console.log(success)
+    })
+    .catch(function (err) {
+
+    })
 
     router.replace(`/dashboard/room/${params.roomname}`)
   }

@@ -1,28 +1,31 @@
-// "use client"
-
+"use client"
 
 import { Socket } from '@/components/socket';
 import { AddButton, Device } from '@/components/button'
 import Link from 'next/link'
 import { LinkHeader } from '../../linkheader';
 import { DeviceList } from './deviceList';
+import instance from '@/components/axiosInst';
+import { useEffect, useState } from 'react';
 
-async function getDeviceData(roomName: string) {
-  const res = await fetch(`http://127.0.0.1:3001/${roomName}/devices`, {
-    cache: 'no-store'
-  })
+export default function Page({ params }: { params: {roomname: string;}}) {
+  const [data, setData] = useState({devList: [], devStatus: {}})
 
-  if (!res.ok) {
-    throw new Error("failed to fetch devices")
+  useEffect(() => {
+    getDeviceData()
+  }, [])
+
+  const getDeviceData = () => {
+    instance.get(`${params.roomname}/devices`)
+    .then(function (resp) {
+      const {success, data} = resp.data
+      console.log(success)
+      setData(data)
+    })
+    .catch(function (err) {
+
+    })
   }
-
-  return res.json()
-}
-
-
-export default async function Page({ params }: { params: {roomname: string;}}) {
-  const {success, data} = await getDeviceData(params.roomname)
-  console.log(data)
 
   return (
     <>
