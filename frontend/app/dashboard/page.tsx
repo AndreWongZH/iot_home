@@ -5,6 +5,7 @@ import { AddButton } from '@/components/button';
 import { LinkHeader } from './linkheader';
 import instance from '@/components/axiosInst';
 import { useEffect, useState } from 'react';
+import Loading from './loading';
 
 const RoomTile = ({name, count} :{ name: string, count: number }) => {
   return (
@@ -39,12 +40,8 @@ interface RegisteredDevice {
 }
 
 export default function Page() {
-  // const data = await getRoomData()
-  // console.log(data)
-  // const {success, data} : {success: Boolean, data: Room[]} = await getRoomData();
-  // console.log(data)
-
   const [data, setData] = useState([])
+  const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
 
   useEffect(() => {
@@ -54,30 +51,39 @@ export default function Page() {
   const getRoomData = () => {
     instance.get('rooms')
       .then(function (resp) {
-        const {success, data} = resp.data
-        console.log(success)
-        setData(data)
+        const {success, data, error} = resp.data
+        if (success) {
+          setData(data)
+        } else {
+          setError(error)
+        }
+        
+        setLoading(false)
       })
       .catch(function (err) {
 
       })
   }
 
-
-  console.log(data)
   return (
     <>
-      <LinkHeader headerText={"IOT Home"} href={`/dashboard/addroom`} showHome={false}>
-        <AddButton onClick={null}/>
-      </LinkHeader>
-      <div className="flex flex-col gap-5 px-4">
-        {
-        data.map(({name, count}) => { 
-          return <RoomTile key={name} name={name} count={count} />
-          })
-        }
-      </div>
-      <div className="h-8"></div>
+      {
+        loading ? <Loading /> :
+      
+        (<>
+          <LinkHeader headerText={"IOT Home"} href={`/dashboard/addroom`} showHome={false}>
+            <AddButton onClick={null}/>
+          </LinkHeader>
+          <div className="flex flex-col gap-5 px-4">
+            {
+            data.map(({name, count}) => { 
+              return <RoomTile key={name} name={name} count={count} />
+              })
+            }
+          </div>
+          <div className="h-8"></div>
+        </>)
+      }
     </>
   )
 }

@@ -8,6 +8,7 @@ import { ImSwitch } from 'react-icons/im'
 import { TbDeviceSpeaker } from 'react-icons/tb'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation';
+import instance from './axiosInst'
 
 export const Button = ({onClick, Icon} : {onClick: any, Icon: IconType}) => {
   return (
@@ -62,15 +63,17 @@ export const Device = ({ name, devStatus, type, roomName, ip, setMode }: DeviceA
   async function toggleSwitch(event: React.SyntheticEvent) {
     event.preventDefault();
 
-    if (!status) {
-      return
-    }
-  
-    let reply = await fetch(`http://127.0.0.1:3001/${roomName}/${ip}/${on ? "off" : "on"}`,
-      {
-        method: 'POST'
-      }
-    )
+    // if (!status) {
+    //   return
+    // }
+
+    instance.post(`${roomName}/${ip}/${on ? "off" : "on"}`)
+    .then(function (resp) {
+      const {success, data} = resp.data
+    })
+    .catch(function (err) {
+
+    })
 
     setOn(!on)
   }

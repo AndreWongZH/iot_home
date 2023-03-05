@@ -23,7 +23,7 @@ export default function Error({
       <h2 className='text-m mt-3'>{error.message}</h2>
       <button
         className="w-1/2 hover:shadow-lg rounded-md bg-[#6A64F1] py-3 mt-10 text-center text-base font-semibold text-white outline-none"
-        onClick={() => { router.replace(`/app/dashboard/`) }}
+        onClick={() => { router.replace(`/dashboard/`) }}
       >
         Reload
       </button>

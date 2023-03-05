@@ -1,15 +1,17 @@
 "use client"
 
 import { Socket } from '@/components/socket';
-import { AddButton, Device } from '@/components/button'
+import { AddButton } from '@/components/button'
 import Link from 'next/link'
 import { LinkHeader } from '../../linkheader';
 import { DeviceList } from './deviceList';
 import instance from '@/components/axiosInst';
 import { useEffect, useState } from 'react';
+import Loading from '../../loading';
 
 export default function Page({ params }: { params: {roomname: string;}}) {
   const [data, setData] = useState({devList: [], devStatus: {}})
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
     getDeviceData()
@@ -19,8 +21,8 @@ export default function Page({ params }: { params: {roomname: string;}}) {
     instance.get(`${params.roomname}/devices`)
     .then(function (resp) {
       const {success, data} = resp.data
-      console.log(success)
       setData(data)
+      setLoading(false)
     })
     .catch(function (err) {
 
@@ -33,7 +35,10 @@ export default function Page({ params }: { params: {roomname: string;}}) {
         <AddButton onClick={null}/>
       </LinkHeader>
 
-      <DeviceList data={data} roomName={params.roomname}/>
+      {
+        loading ? <Loading /> : <DeviceList data={data} roomName={params.roomname}/>
+      }
+      
       {
         data.devList.length > 0
           ? <></>
