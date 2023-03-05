@@ -4,7 +4,6 @@ import (
 	"encoding/json"
 	"fmt"
 
-	"github.com/AndreWongZH/iothome/globalinfo"
 	socketio "github.com/googollee/go-socket.io"
 )
 
@@ -35,8 +34,8 @@ func InitSocket() *socketio.Server {
 
 		json.Unmarshal([]byte(msg), &query)
 
-		devInfo := globalinfo.ServerInfo.Rooms[query.RoomName].DeviceInfo
-		server.BroadcastToNamespace("/", "recvStatus", devInfo)
+		// devInfo := globalinfo.ServerInfo.Rooms[query.RoomName].DeviceInfo
+		// server.BroadcastToNamespace("/", "recvStatus", devInfo)
 	})
 
 	return server

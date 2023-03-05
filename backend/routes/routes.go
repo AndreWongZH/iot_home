@@ -5,12 +5,15 @@ import (
 	"encoding/json"
 	"fmt"
 	"io/ioutil"
+	"log"
 	"net/http"
 	"time"
 
 	"github.com/AndreWongZH/iothome/database"
+	"github.com/AndreWongZH/iothome/globals"
 	"github.com/AndreWongZH/iothome/models"
 	"github.com/AndreWongZH/iothome/wled"
+	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
@@ -36,7 +39,57 @@ func sendResultJson(ctx *gin.Context, success bool, err error, errStr string, da
 }
 
 func getServerStatus(ctx *gin.Context) {
-	ctx.JSON(http.StatusOK, gin.H{"status": "ok"})
+	session := sessions.Default(ctx)
+	user := session.Get(globals.UserKey)
+
+	var count int
+	v := session.Get("count")
+	if v == nil {
+		count = 0
+	} else {
+		count = v.(int)
+		count++
+	}
+	session.Set("count", count)
+	session.Save()
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"status": "ok",
+		"user":   user,
+		"count":  count,
+	})
+}
+
+func loginPost(ctx *gin.Context) {
+	fmt.Println(ctx.GetHeader("Set-Cookie"))
+	var userCreds models.UserCreds
+
+	session := sessions.Default(ctx)
+	user := session.Get(globals.UserKey)
+	if user != nil {
+		fmt.Println(user)
+		sendResultJson(ctx, false, nil, "user already logged in", nil)
+		return
+	}
+
+	err := ctx.BindJSON(&userCreds)
+	if err != nil {
+		log.Println(err)
+		sendResultJson(ctx, false, err, "", nil)
+		return
+	}
+
+	session.Set(globals.UserKey, userCreds.Username)
+	if err := session.Save(); err != nil {
+		log.Println(err)
+		sendResultJson(ctx, false, err, "", nil)
+		return
+	}
+
+	user = session.Get(globals.UserKey)
+	fmt.Println(user)
+
+	sendResultJson(ctx, true, nil, "", userCreds)
 }
 
 func createRoom(ctx *gin.Context) {
@@ -190,18 +243,21 @@ func setWled(ctx *gin.Context) {
 
 	err := ctx.BindJSON(&wledState)
 	if err != nil {
+		log.Println(err)
 		sendResultJson(ctx, false, err, "", nil)
 		return
 	}
 
 	marshalled, err := json.Marshal(wledState)
 	if err != nil {
+		log.Println(err)
 		sendResultJson(ctx, false, err, "", nil)
 		return
 	}
 
 	resp, err := http.Post("http://"+ip+"/json", "application/json", bytes.NewBuffer(marshalled))
 	if err != nil {
+		log.Println(err)
 		sendResultJson(ctx, false, err, "", nil)
 		return
 	}
