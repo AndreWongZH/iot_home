@@ -243,21 +243,18 @@ func setWled(ctx *gin.Context) {
 
 	err := ctx.BindJSON(&wledState)
 	if err != nil {
-		log.Println(err)
 		sendResultJson(ctx, false, err, "", nil)
 		return
 	}
 
 	marshalled, err := json.Marshal(wledState)
 	if err != nil {
-		log.Println(err)
 		sendResultJson(ctx, false, err, "", nil)
 		return
 	}
 
 	resp, err := http.Post("http://"+ip+"/json", "application/json", bytes.NewBuffer(marshalled))
 	if err != nil {
-		log.Println(err)
 		sendResultJson(ctx, false, err, "", nil)
 		return
 	}
