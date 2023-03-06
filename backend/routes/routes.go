@@ -3,37 +3,33 @@ package routes
 import (
 	"bytes"
 	"encoding/json"
+	"errors"
 	"fmt"
 	"io/ioutil"
 	"log"
 	"net/http"
+	"strings"
 	"time"
 
 	"github.com/AndreWongZH/iothome/database"
 	"github.com/AndreWongZH/iothome/globals"
+	"github.com/AndreWongZH/iothome/inputvalid"
 	"github.com/AndreWongZH/iothome/models"
 	"github.com/AndreWongZH/iothome/wled"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )
 
-func sendResultJson(ctx *gin.Context, success bool, err error, errStr string, data interface{}) {
+func sendResultJson(ctx *gin.Context, success bool, err error, data interface{}) {
 	if success {
 		ctx.JSON(http.StatusOK, gin.H{
 			"success": true,
 			"data":    data,
 		})
 	} else {
-		var errorMessage interface{}
-		if err != nil {
-			errorMessage = err
-		} else {
-			errorMessage = errStr
-		}
-
 		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
 			"success": success,
-			"error":   errorMessage,
+			"error":   err,
 		})
 	}
 }
@@ -68,28 +64,28 @@ func loginPost(ctx *gin.Context) {
 	user := session.Get(globals.UserKey)
 	if user != nil {
 		fmt.Println(user)
-		sendResultJson(ctx, false, nil, "user already logged in", nil)
+		sendResultJson(ctx, false, errors.New("user already logged in"), nil)
 		return
 	}
 
 	err := ctx.BindJSON(&userCreds)
 	if err != nil {
 		log.Println(err)
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
 	session.Set(globals.UserKey, userCreds.Username)
 	if err := session.Save(); err != nil {
 		log.Println(err)
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
 	user = session.Get(globals.UserKey)
 	fmt.Println(user)
 
-	sendResultJson(ctx, true, nil, "", userCreds)
+	sendResultJson(ctx, true, nil, userCreds)
 }
 
 func createRoom(ctx *gin.Context) {
@@ -97,27 +93,33 @@ func createRoom(ctx *gin.Context) {
 
 	err := ctx.BindJSON(&room)
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
+		return
+	}
+	room.Name = strings.Trim(room.Name, " ")
+
+	if err := inputvalid.CheckRoomInput(room.Name); err != nil {
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
 	err = database.Dbman.AddRoom(room)
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
-	sendResultJson(ctx, true, nil, "", nil)
+	sendResultJson(ctx, true, nil, nil)
 }
 
 func getRooms(ctx *gin.Context) {
 	rooms, err := database.Dbman.GetRooms()
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
-	sendResultJson(ctx, true, nil, "", rooms)
+	sendResultJson(ctx, true, nil, rooms)
 }
 
 func addDevice(ctx *gin.Context) {
@@ -127,17 +129,22 @@ func addDevice(ctx *gin.Context) {
 
 	err := ctx.BindJSON(&registeredDevice)
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
+		return
+	}
+
+	if err := inputvalid.CheckDeviceInput(&registeredDevice); err != nil {
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
 	err = database.Dbman.AddDevice(registeredDevice, roomName)
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
-	sendResultJson(ctx, true, nil, "", nil)
+	sendResultJson(ctx, true, nil, nil)
 }
 
 func showDevices(ctx *gin.Context) {
@@ -146,17 +153,11 @@ func showDevices(ctx *gin.Context) {
 	devList, devStatus, err := database.Dbman.GetDevices(roomName)
 
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
-	// ctx.JSON(http.StatusOK, gin.H{
-	// 	"success":   true,
-	// 	"devList":   devList,
-	// 	"devStatus": devStatus,
-	// })
-
-	sendResultJson(ctx, true, nil, "", gin.H{
+	sendResultJson(ctx, true, nil, gin.H{
 		"devList":   devList,
 		"devStatus": devStatus,
 	})
@@ -169,7 +170,7 @@ func toggleDevice(ctx *gin.Context) {
 
 	device_id, devInfo, _, err := database.Dbman.GetDevice(roomName, ipAddr)
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
@@ -178,13 +179,13 @@ func toggleDevice(ctx *gin.Context) {
 		wledSwitch.On = toggle == "on"
 		marshalled, err := json.Marshal(wledSwitch)
 		if err != nil {
-			sendResultJson(ctx, false, err, "", nil)
+			sendResultJson(ctx, false, err, nil)
 			return
 		}
 
 		resp, err := http.Post("http://"+ipAddr+"/json", "application/json", bytes.NewBuffer(marshalled))
 		if err != nil {
-			sendResultJson(ctx, false, err, "", nil)
+			sendResultJson(ctx, false, err, nil)
 			return
 		}
 
@@ -200,11 +201,11 @@ func toggleDevice(ctx *gin.Context) {
 	}
 	err = database.Dbman.UpdateDevStatus(device_id, on_state)
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
-	sendResultJson(ctx, true, nil, "", nil)
+	sendResultJson(ctx, true, nil, nil)
 }
 
 func getWledConfigs(ctx *gin.Context) {
@@ -218,20 +219,20 @@ func getWledConfigs(ctx *gin.Context) {
 
 	resp, err := client.Get("http://" + ip + "/json")
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 	defer resp.Body.Close()
 
 	body, err := ioutil.ReadAll(resp.Body)
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
 	json.Unmarshal(body, &wledConfig)
 
-	sendResultJson(ctx, true, nil, "", wledConfig.State)
+	sendResultJson(ctx, true, nil, wledConfig.State)
 }
 
 func setWled(ctx *gin.Context) {
@@ -243,25 +244,25 @@ func setWled(ctx *gin.Context) {
 
 	err := ctx.BindJSON(&wledState)
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
 	marshalled, err := json.Marshal(wledState)
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
 	resp, err := http.Post("http://"+ip+"/json", "application/json", bytes.NewBuffer(marshalled))
 	if err != nil {
-		sendResultJson(ctx, false, err, "", nil)
+		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
 	defer resp.Body.Close()
 
-	sendResultJson(ctx, true, nil, "", nil)
+	sendResultJson(ctx, true, nil, nil)
 }
 
 // func discoverNetworkDevices(ctx *gin.Context) {

@@ -1,6 +1,7 @@
 package routes
 
 import (
+	"errors"
 	"fmt"
 	"net/http"
 	"time"
@@ -76,7 +77,7 @@ func AuthRequired(ctx *gin.Context) {
 	user := session.Get(globals.UserKey)
 	fmt.Println("user sessions:", user)
 	if user == nil {
-		sendResultJson(ctx, false, nil, "user not logged in", nil)
+		sendResultJson(ctx, false, errors.New("user not logged in"), nil)
 		return
 	}
 
