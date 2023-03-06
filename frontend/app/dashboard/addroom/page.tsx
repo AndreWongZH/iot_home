@@ -3,6 +3,7 @@
 import instance from '@/components/axiosInst';
 import { BackHeader } from '@/components/header';
 import { useRouter } from 'next/navigation';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import React, { useState } from 'react';
 
 export default function Page() {
@@ -11,7 +12,6 @@ export default function Page() {
 
   async function addRoom(event: React.SyntheticEvent) {
     event.preventDefault(); 
-    console.log("adding room")
 
     const jsonData = {
       name: room,
@@ -19,14 +19,21 @@ export default function Page() {
 
     instance.post('/createrm', jsonData)
     .then(function (resp) {
-      const {success, data} = resp.data
-      console.log(success)
+      const { success, error } = resp.data
+      if (success) {
+        router.push(`/dashboard/room/${room}`)
+      } else {
+        Notify.failure(error, {
+          position: 'center-bottom',
+          timeout: 1500,
+          showOnlyTheLastOne: true,
+          clickToClose: true
+        })
+      }
     })
     .catch(function (err) {
 
     })
-    
-    router.push(`/dashboard/room/${room}`)
   }
 
   return (

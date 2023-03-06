@@ -4,6 +4,7 @@ import instance from '@/components/axiosInst';
 import { BackHeader } from '@/components/header';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
+import { Notify } from 'notiflix/build/notiflix-notify-aio';
 
 export default function Page({ params }: { params: { roomname: string } }) {
   const router = useRouter();
@@ -14,7 +15,6 @@ export default function Page({ params }: { params: { roomname: string } }) {
 
   async function addDevice(event: React.SyntheticEvent) {
     event.preventDefault(); 
-    console.log("adding device")
 
     const jsonData = {
       name: name,
@@ -22,18 +22,23 @@ export default function Page({ params }: { params: { roomname: string } }) {
       type: type
     }
 
-    console.log(jsonData)
-
     instance.post(`${params.roomname}/add_device`, jsonData)
     .then(function (resp) {
-      const {success, data} = resp.data
-      console.log(success)
+      const { success, error } = resp.data
+      if (success) {
+        router.replace(`/dashboard/room/${params.roomname}`)
+      } else {
+        Notify.failure(error, {
+          position: 'center-bottom',
+          timeout: 1500,
+          showOnlyTheLastOne: true,
+          clickToClose: true
+        })
+      }
     })
     .catch(function (err) {
 
     })
-
-    router.replace(`/dashboard/room/${params.roomname}`)
   }
 
   return (
