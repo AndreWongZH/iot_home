@@ -14,7 +14,7 @@ func CheckRoomInput(roomName string) error {
 	}
 
 	if strings.Contains(roomName, " ") {
-		return errors.New("room name contain spaces")
+		return errors.New("room name must not contain spaces")
 	}
 
 	if len(roomName) > 16 {

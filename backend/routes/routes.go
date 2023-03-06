@@ -29,7 +29,7 @@ func sendResultJson(ctx *gin.Context, success bool, err error, data interface{})
 	} else {
 		ctx.AbortWithStatusJSON(http.StatusOK, gin.H{
 			"success": success,
-			"error":   err,
+			"error":   err.Error(),
 		})
 	}
 }
