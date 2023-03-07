@@ -69,6 +69,7 @@ func InitRouter() *gin.Engine {
 		if err != nil {
 			log.Println("failed to upgrade to websockets")
 		}
+		fmt.Println("client is connected")
 		defer conn.Close()
 
 		type Data struct {
@@ -124,8 +125,8 @@ func privateRoutes(g *gin.RouterGroup) {
 func AuthRequired(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	user := session.Get(globals.UserKey)
-	fmt.Println(ctx.Request.Header)
-	fmt.Println("user sessions:", user)
+	// fmt.Println(ctx.Request.Header)
+	// fmt.Println("user sessions:", user)
 	if user == nil {
 		sendResultJson(ctx, false, errors.New("user not logged in"), nil)
 		return

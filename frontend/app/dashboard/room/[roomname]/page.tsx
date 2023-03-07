@@ -28,7 +28,6 @@ export default function Page({ params }: { params: {roomname: string;}}) {
       return resp.json()
     })
     .then(({ success, data }) => {
-      console.log(data)
       setData(data)
       setLoading(false)
     })

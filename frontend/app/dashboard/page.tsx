@@ -59,7 +59,6 @@ export default function Page() {
       return resp.json()
     })
     .then(({ success, data }) => {
-      console.log(data)
       setData(data)
       setLoading(false)
     })

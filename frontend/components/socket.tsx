@@ -1,15 +1,23 @@
 "use client"
 
+import { usePathname } from 'next/navigation';
 import { useEffect, useState } from 'react'
-// import WebSocket from 'websocket'
 var W3CWebSocket = require('websocket').w3cwebsocket;
 
 export function SocketConn() {
+  const pathname = usePathname();
   const [data, setData] = useState([])
-  const [cli, setCli] = useState(null)
+  const [cli, setCli] = useState<any>(null)
 
   useEffect(() => {
-    console.log(document.cookie)
+    if (cli) {
+      cli.close()
+    }
+  }, [pathname])
+  
+
+  useEffect(() => {
+    
     const client = new W3CWebSocket('ws://localhost:3001/ws', "", {
       headers: {
         Cookie: document.cookie
@@ -46,7 +54,7 @@ export function SocketConn() {
         console.log(e.data)
     };
 
-  }, [data])
+  }, [])
 
   const senddata = () => {
     var data = {
