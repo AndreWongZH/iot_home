@@ -1,6 +1,5 @@
 "use client"
 
-import instance from '@/components/axiosInst';
 import { BackHeader } from '@/components/header';
 import { useRouter } from 'next/navigation';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
@@ -17,9 +16,16 @@ export default function Page() {
       name: room,
     }
 
-    instance.post('/createrm', jsonData)
-    .then(function (resp) {
-      const { success, error } = resp.data
+    fetch("http://localhost:3001/createrm",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(jsonData)
+    })
+    .then((resp) => resp.json())
+    .then(({ success, error }) => {
       if (success) {
         router.push(`/dashboard/room/${room}`)
       } else {
@@ -30,9 +36,6 @@ export default function Page() {
           clickToClose: true
         })
       }
-    })
-    .catch(function (err) {
-
     })
   }
 

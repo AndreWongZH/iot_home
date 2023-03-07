@@ -1,11 +1,10 @@
 "use client"
 
-import { Socket } from '@/components/socket';
+import { SocketConn } from '@/components/socket';
 import { AddButton } from '@/components/button'
 import Link from 'next/link'
 import { LinkHeader } from '../../linkheader';
 import { DeviceList } from './deviceList';
-import instance from '@/components/axiosInst';
 import { useEffect, useState } from 'react';
 import Loading from '../../loading';
 
@@ -18,15 +17,22 @@ export default function Page({ params }: { params: {roomname: string;}}) {
   }, [])
 
   const getDeviceData = () => {
-    instance.get(`${params.roomname}/devices`)
-    .then(function (resp) {
-      const {success, data} = resp.data
+    fetch(`http://localhost:3001/${params.roomname}/devices`,{
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+    .then((resp) => {
+      return resp.json()
+    })
+    .then(({ success, data }) => {
+      console.log(data)
       setData(data)
       setLoading(false)
     })
-    .catch(function (err) {
 
-    })
   }
 
   return (
@@ -54,7 +60,7 @@ export default function Page({ params }: { params: {roomname: string;}}) {
             </Link>
           </div>
       }
-      {/* <Socket /> */}
+      <SocketConn />
     </>
   )
 }

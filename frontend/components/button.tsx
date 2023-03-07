@@ -8,7 +8,6 @@ import { ImSwitch } from 'react-icons/im'
 import { TbDeviceSpeaker } from 'react-icons/tb'
 import React, { useState } from 'react'
 import { useRouter } from 'next/navigation';
-import instance from './axiosInst'
 
 export const Button = ({onClick, Icon} : {onClick: any, Icon: IconType}) => {
   return (
@@ -67,13 +66,13 @@ export const Device = ({ name, devStatus, type, roomName, ip, setMode }: DeviceA
     //   return
     // }
 
-    instance.post(`${roomName}/${ip}/${on ? "off" : "on"}`)
-    .then(function (resp) {
-      const {success, data} = resp.data
-    })
-    .catch(function (err) {
+    // instance.post(`${roomName}/${ip}/${on ? "off" : "on"}`)
+    // .then(function (resp) {
+    //   const {success, data} = resp.data
+    // })
+    // .catch(function (err) {
 
-    })
+    // })
 
     setOn(!on)
   }

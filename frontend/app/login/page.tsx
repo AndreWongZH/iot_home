@@ -1,8 +1,7 @@
 "use client"
 
-import instance from "@/components/axiosInst"
-import axios from "axios"
 import { useRouter } from "next/navigation"
+import { Notify } from "notiflix/build/notiflix-notify-aio"
 import { useState } from "react"
 
 export default function Page() {
@@ -13,20 +12,32 @@ export default function Page() {
   const tryLogin = async (e: React.SyntheticEvent) => {
     e.preventDefault()
 
-    console.log(username, password)
-
     const jsonData = {
       username,
       password
     }
 
-    instance.post('login', jsonData)
-      .then(function (resp) {
-        const { success, error } = resp.data
-        if (success) {
-          router.push(`/dashboard/`) 
-        }
-      })
+    fetch("http://localhost:3001/login",{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(jsonData)
+    })
+    .then((resp) => resp.json())
+    .then(({success, error}) => {
+      if (success) {
+        router.push(`/dashboard/`)
+      } else {
+        Notify.failure(error, {
+          position: 'center-bottom',
+          timeout: 1500,
+          showOnlyTheLastOne: true,
+          clickToClose: true
+        })
+      }
+    })
   }
 
   return (

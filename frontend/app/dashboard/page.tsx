@@ -3,7 +3,6 @@
 import Link from 'next/link';
 import { AddButton } from '@/components/button';
 import { LinkHeader } from './linkheader';
-import instance from '@/components/axiosInst';
 import { useEffect, useState } from 'react';
 import Loading from './loading';
 
@@ -49,20 +48,21 @@ export default function Page() {
   }, [])
 
   const getRoomData = () => {
-    instance.get('rooms')
-      .then(function (resp) {
-        const {success, data, error} = resp.data
-        if (success) {
-          setData(data)
-        } else {
-          setError(error)
-        }
-        
-        setLoading(false)
-      })
-      .catch(function (err) {
-
-      })
+    fetch("http://localhost:3001/rooms",{
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+    .then((resp) => {
+      return resp.json()
+    })
+    .then(({ success, data }) => {
+      console.log(data)
+      setData(data)
+      setLoading(false)
+    })
   }
 
   return (
