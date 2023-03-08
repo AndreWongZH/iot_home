@@ -1,12 +1,12 @@
 "use client"
 
-import { SocketConn } from '@/components/socket';
 import { AddButton } from '@/components/button'
 import Link from 'next/link'
 import { LinkHeader } from '../../linkheader';
 import { DeviceList } from './deviceList';
 import { useEffect, useState } from 'react';
 import Loading from '../../loading';
+import { getSocketInstance } from '@/components/socket';
 
 export default function Page({ params }: { params: {roomname: string;}}) {
   const [data, setData] = useState({devList: [], devStatus: {}})
@@ -14,6 +14,16 @@ export default function Page({ params }: { params: {roomname: string;}}) {
 
   useEffect(() => {
     getDeviceData()
+  }, [])
+
+  useEffect(() => {
+    let soc = getSocketInstance()
+    soc.client.onmessage = function(e: any) {
+      // if (typeof e.data === 'string') {
+      //     console.log("Received: '" + e.data + "'");
+      // }
+      console.log(e.data)
+  };
   }, [])
 
   const getDeviceData = () => {
@@ -59,7 +69,6 @@ export default function Page({ params }: { params: {roomname: string;}}) {
             </Link>
           </div>
       }
-      <SocketConn />
     </>
   )
 }

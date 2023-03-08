@@ -78,6 +78,11 @@ func InitRouter() *gin.Engine {
 
 		var datapacket Data
 
+		// for {
+		// 	conn.WriteMessage(websocket.TextMessage, []byte("hello world test"))
+		// 	time.Sleep(20 * time.Second)
+		// }
+
 		for {
 			// messageType, p, err := conn.ReadJSON(&datapacket)
 			err := conn.ReadJSON(&datapacket)

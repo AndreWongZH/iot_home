@@ -1,77 +1,124 @@
 "use client"
 
-import { usePathname } from 'next/navigation';
-import { useEffect, useState } from 'react'
 var W3CWebSocket = require('websocket').w3cwebsocket;
 
-export function SocketConn() {
-  const pathname = usePathname();
-  const [data, setData] = useState([])
-  const [cli, setCli] = useState<any>(null)
+interface SocketService {
+  client: any;
+}
 
-  useEffect(() => {
-    if (cli) {
-      cli.close()
-    }
-  }, [pathname])
-  
+class SocketService {
+  constructor() {
+    // check for cookie first
 
-  useEffect(() => {
-    
-    const client = new W3CWebSocket('ws://localhost:3001/ws', "", {
+    this.client = new W3CWebSocket('ws://localhost:3001/ws', "", {
       headers: {
         Cookie: document.cookie
       }
     })
 
-    setCli(client)
-
-    client.onerror = function() {
+    this.client.onerror = function() {
       console.log('Connection Error');
     };
   
-    client.onopen = function() {
+    this.client.onopen = function() {
         console.log('WebSocket Client Connected');
-    
-        // function sendNumber() {
-        //     if (client.readyState === client.OPEN) {
-        //         var number = Math.round(Math.random() * 0xFFFFFF);
-        //         client.send(number.toString());
-        //         setTimeout(sendNumber, 1000);
-        //     }
-        // }
-        // sendNumber();
     };
   
-    client.onclose = function() {
+    this.client.onclose = function() {
         console.log('echo-protocol Client Closed');
     };
-    
-    client.onmessage = function(e: any) {
-        // if (typeof e.data === 'string') {
-        //     console.log("Received: '" + e.data + "'");
-        // }
-        console.log(e.data)
-    };
-
-  }, [])
-
-  const senddata = () => {
-    var data = {
-      success: "hello world!"
-    }
-
-    if (cli) {
-      cli.send(JSON.stringify(data))
-    }
   }
 
-  return (
-    <>
-      <div onClick={() => {senddata()}}>click me</div>
-    </>
-  )
+  close() {
+    // call this during logout
+    this.client.close()
+  }
 }
+
+let socket: any = null;
+
+export function getSocketInstance() {
+  if (!socket) {
+    socket = new SocketService();
+  }
+  return socket;
+}
+
+
+// export function SocketConn() {
+//   const pathname = usePathname();
+//   const [data, setData] = useState([])
+//   const [cli, setCli] = useState<any>(null)
+
+//   // useEffect(() => {
+//   //   if (cli) {
+//   //     cli.close()
+//   //   }
+//   // }, [pathname])
+  
+
+//   useEffect(() => {
+    
+//     const client = new W3CWebSocket('ws://localhost:3001/ws', "", {
+//       headers: {
+//         Cookie: document.cookie
+//       }
+//     })
+
+//     setCli(client)
+
+//     client.onerror = function() {
+//       console.log('Connection Error');
+//     };
+  
+//     client.onopen = function() {
+//         console.log('WebSocket Client Connected');
+    
+//         // function sendNumber() {
+//         //     if (client.readyState === client.OPEN) {
+//         //         var number = Math.round(Math.random() * 0xFFFFFF);
+//         //         client.send(number.toString());
+//         //         setTimeout(sendNumber, 1000);
+//         //     }
+//         // }
+//         // sendNumber();
+//     };
+  
+//     client.onclose = function() {
+//         console.log('echo-protocol Client Closed');
+//     };
+    
+//     client.onmessage = function(e: any) {
+//         // if (typeof e.data === 'string') {
+//         //     console.log("Received: '" + e.data + "'");
+//         // }
+//         console.log(e.data)
+//     };
+
+//     return () => {
+//       if (cli) {
+//         cli.close()
+//       }
+//     }
+
+//   }, [])
+
+//   const senddata = () => {
+//     var data = {
+//       success: "hello world!"
+//     }
+
+//     if (cli) {
+//       cli.send(JSON.stringify(data))
+//     }
+//   }
+
+//   return (
+//     <>
+//       <div onClick={() => {senddata()}}>click me</div>
+//     </>
+//   )
+// }
 
 // import io from 'socket.io-client';
 // import { useEffect } from 'react';
