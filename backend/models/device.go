@@ -14,6 +14,6 @@ const (
 )
 
 type DeviceStatus struct {
-	Status bool `json:"status"`
-	On     bool `json:"on"`
+	Connected bool `json:"connected"`
+	On_state  bool `json:"on_state"`
 }

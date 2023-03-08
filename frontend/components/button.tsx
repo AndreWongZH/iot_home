@@ -44,8 +44,8 @@ const getDeviceIcon = (type : string) => {
 interface DeviceArgs {
   name: string;
   devStatus: {
-    status: boolean;
-    on: boolean;
+    connected: boolean;
+    on_state: boolean;
   }
   type: string;
   roomName: string;
@@ -55,26 +55,33 @@ interface DeviceArgs {
 
 export const Device = ({ name, devStatus, type, roomName, ip, setMode }: DeviceArgs) => {
   let icon = getDeviceIcon(type)
-  const [status, setStatus] = useState(devStatus.status)
-  const [on, setOn] = useState(devStatus.on)
+  const [status, setStatus] = useState(devStatus.connected)
+  const [on, setOn] = useState(devStatus.on_state)
+  const [wait, setWait] = useState(false)
   const router = useRouter();
 
   async function toggleSwitch(event: React.SyntheticEvent) {
     event.preventDefault();
 
-    // if (!status) {
-    //   return
-    // }
+    if (!status || wait) {
+      return
+    }
 
-    // instance.post(`${roomName}/${ip}/${on ? "off" : "on"}`)
-    // .then(function (resp) {
-    //   const {success, data} = resp.data
-    // })
-    // .catch(function (err) {
-
-    // })
-
-    setOn(!on)
+    setWait(true)
+    fetch(`http://localhost:3001/${roomName}/${ip}/${on ? "off" : "on"}`,{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+    .then((resp) => resp.json())
+    .then(({ success, error }) => {
+      if (success) {
+        setOn(!on)
+      }
+      setWait(false)
+    })
   }
 
   function goToSettings() {
@@ -95,8 +102,7 @@ export const Device = ({ name, devStatus, type, roomName, ip, setMode }: DeviceA
         {icon}
       </div>
       <div className='relative pl-3 group-hover:text-white'>
-        <h3 className="font-bold text-lg">{name}</h3>
-        {/* <p className="font-light text-left">{status ? on ? "on" : "off" : "disconnected"}</p> */}
+        <h3 className="font-bold text-lg text-left">{name}</h3>
         <p className="font-light text-left">{on ? "on" : "off"}</p>
       </div>
     </button>

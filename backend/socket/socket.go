@@ -1,42 +1,66 @@
 package socket
 
 import (
-	"encoding/json"
 	"fmt"
+	"log"
+	"net/http"
 
-	socketio "github.com/googollee/go-socket.io"
+	"github.com/gin-gonic/gin"
+	"github.com/gorilla/websocket"
 )
 
-type onStatusQuery struct {
-	RoomName string `json:"roomname"`
-	Deviceip string `json:"ipaddr"`
+var upgrader = websocket.Upgrader{
+	ReadBufferSize:  1024,
+	WriteBufferSize: 1024,
+	CheckOrigin: func(r *http.Request) bool {
+		return true
+	},
 }
 
-func InitSocket() *socketio.Server {
-	server := socketio.NewServer(nil)
+var connectedSockets []*websocket.Conn
 
-	server.OnConnect("/", func(c socketio.Conn) error {
-		c.SetContext("")
-		fmt.Println("connected:", c.ID())
+func WebsocketHandler(ctx *gin.Context) {
+	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
+	if err != nil {
+		log.Println("failed to upgrade to websockets")
+	}
+
+	conn.SetCloseHandler(func(code int, text string) error {
+		for i, c := range connectedSockets {
+			if c == conn {
+				connectedSockets = append(connectedSockets[:i], connectedSockets[i+1:]...)
+				break
+			}
+		}
+		fmt.Println("websocket is closed")
 		return nil
 	})
 
-	server.OnEvent("/", "testping", func(c socketio.Conn, msg string) {
-		fmt.Println("receieved socket msg from client")
+	fmt.Println("client is connected")
+	defer conn.Close()
+	connectedSockets = append(connectedSockets, conn)
 
-		fmt.Println(msg)
-	})
+	type Data struct {
+		Success string `json:"success"`
+	}
 
-	server.OnEvent("/", "devStatus", func(c socketio.Conn, msg string) {
-		fmt.Println("receieved socket msg from client")
+	var datapacket Data
 
-		var query onStatusQuery
+	for {
+		// messageType, p, err := conn.ReadJSON(&datapacket)
+		err := conn.ReadJSON(&datapacket)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		// fmt.Println("message type: ", messageType)
+		// fmt.Println("data: ", p)
+		fmt.Println("data: ", datapacket.Success)
+	}
+}
 
-		json.Unmarshal([]byte(msg), &query)
-
-		// devInfo := globalinfo.ServerInfo.Rooms[query.RoomName].DeviceInfo
-		// server.BroadcastToNamespace("/", "recvStatus", devInfo)
-	})
-
-	return server
+func BroadcastMsg(data interface{}) {
+	for _, conn := range connectedSockets {
+		conn.WriteJSON(data)
+	}
 }

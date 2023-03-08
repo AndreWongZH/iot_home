@@ -22,7 +22,7 @@ type State struct {
 }
 
 type WledConfig struct {
-	State interface{} `json:"state"`
+	State State `json:"state"`
 	// Info     interface{}
 	Effects  []string `json:"effects"`
 	Palettes []string `json:"palettes"`

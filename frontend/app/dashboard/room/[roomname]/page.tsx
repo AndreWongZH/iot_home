@@ -19,11 +19,16 @@ export default function Page({ params }: { params: {roomname: string;}}) {
   useEffect(() => {
     let soc = getSocketInstance()
     soc.client.onmessage = function(e: any) {
-      // if (typeof e.data === 'string') {
-      //     console.log("Received: '" + e.data + "'");
-      // }
-      console.log(e.data)
-  };
+      let websocketMsg = JSON.parse(e.data)
+      if (websocketMsg.roomname == params.roomname) {
+        setData((prev) => {
+          return {
+            ...prev,
+            devStatus: websocketMsg.devstatuses
+          }
+        })
+      }
+    };
   }, [])
 
   const getDeviceData = () => {

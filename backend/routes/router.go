@@ -2,17 +2,14 @@ package routes
 
 import (
 	"errors"
-	"fmt"
-	"log"
-	"net/http"
 	"time"
 
 	"github.com/AndreWongZH/iothome/globals"
+	"github.com/AndreWongZH/iothome/socket"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-contrib/sessions/cookie"
 	"github.com/gin-gonic/gin"
-	"github.com/gorilla/websocket"
 )
 
 // func GinMiddleware(allowOrigin string) gin.HandlerFunc {
@@ -21,14 +18,6 @@ import (
 // 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
 // 	}
 // }
-
-var upgrader = websocket.Upgrader{
-	ReadBufferSize:  1024,
-	WriteBufferSize: 1024,
-	CheckOrigin: func(r *http.Request) bool {
-		return true
-	},
-}
 
 // func InitRouter(socketServer *socketio.Server) *gin.Engine {
 func InitRouter() *gin.Engine {
@@ -64,42 +53,7 @@ func InitRouter() *gin.Engine {
 	private.Use(AuthRequired)
 	privateRoutes(private)
 
-	private.GET("/ws", func(ctx *gin.Context) {
-		conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
-		if err != nil {
-			log.Println("failed to upgrade to websockets")
-		}
-		fmt.Println("client is connected")
-		defer conn.Close()
-
-		type Data struct {
-			Success string `json:"success"`
-		}
-
-		var datapacket Data
-
-		// for {
-		// 	conn.WriteMessage(websocket.TextMessage, []byte("hello world test"))
-		// 	time.Sleep(20 * time.Second)
-		// }
-
-		for {
-			// messageType, p, err := conn.ReadJSON(&datapacket)
-			err := conn.ReadJSON(&datapacket)
-			if err != nil {
-				fmt.Println(err)
-				return
-			}
-			// fmt.Println("message type: ", messageType)
-			// fmt.Println("data: ", p)
-			fmt.Println("data: ", datapacket.Success)
-
-			// err = conn.WriteMessage(messageType, p)
-			// if err != nil {
-			// 	return
-			// }
-		}
-	})
+	private.GET("/ws", socket.WebsocketHandler)
 
 	// r.GET("/discover", discoverNetworkDevices)
 

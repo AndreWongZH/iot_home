@@ -5,13 +5,14 @@ import (
 	"encoding/json"
 	"errors"
 	"fmt"
-	"io/ioutil"
+	"io"
 	"log"
 	"net/http"
 	"strings"
 	"time"
 
 	"github.com/AndreWongZH/iothome/database"
+	"github.com/AndreWongZH/iothome/device"
 	"github.com/AndreWongZH/iothome/globals"
 	"github.com/AndreWongZH/iothome/inputvalid"
 	"github.com/AndreWongZH/iothome/models"
@@ -138,7 +139,9 @@ func addDevice(ctx *gin.Context) {
 		return
 	}
 
-	err = database.Dbman.AddDevice(registeredDevice, roomName)
+	devStatus := device.QueryDevStatus("http://" + registeredDevice.Ipaddr + "/json")
+
+	err = database.Dbman.AddDevice(registeredDevice, devStatus, roomName)
 	if err != nil {
 		sendResultJson(ctx, false, err, nil)
 		return
@@ -151,6 +154,8 @@ func showDevices(ctx *gin.Context) {
 	roomName := ctx.Param("roomname")
 
 	devList, devStatus, err := database.Dbman.GetDevices(roomName)
+
+	go device.QueryRoomDevices(devList, roomName)
 
 	if err != nil {
 		sendResultJson(ctx, false, err, nil)
@@ -224,7 +229,7 @@ func getWledConfigs(ctx *gin.Context) {
 	}
 	defer resp.Body.Close()
 
-	body, err := ioutil.ReadAll(resp.Body)
+	body, err := io.ReadAll(resp.Body)
 	if err != nil {
 		sendResultJson(ctx, false, err, nil)
 		return

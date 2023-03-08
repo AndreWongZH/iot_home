@@ -12,8 +12,8 @@ interface DeviceInfo {
 }
 
 interface DeviceStatus {
-  status: boolean;
-  on: boolean;
+  connected: boolean;
+  on_state: boolean;
 }
 
 interface RoomDevicesData {
