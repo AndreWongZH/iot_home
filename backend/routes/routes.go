@@ -58,7 +58,6 @@ func getServerStatus(ctx *gin.Context) {
 }
 
 func loginPost(ctx *gin.Context) {
-	fmt.Println(ctx.GetHeader("Set-Cookie"))
 	var userCreds models.UserCreds
 
 	session := sessions.Default(ctx)
@@ -87,6 +86,24 @@ func loginPost(ctx *gin.Context) {
 	fmt.Println(user)
 
 	sendResultJson(ctx, true, nil, userCreds)
+}
+
+func logoutPost(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	user := session.Get(globals.UserKey)
+	log.Println("logging out user:", user)
+	if user == nil {
+		sendResultJson(ctx, false, errors.New("user token is invalid"), nil)
+		return
+	}
+
+	session.Delete(globals.UserKey)
+	if err := session.Save(); err != nil {
+		sendResultJson(ctx, false, err, nil)
+		return
+	}
+
+	sendResultJson(ctx, true, nil, nil)
 }
 
 func createRoom(ctx *gin.Context) {

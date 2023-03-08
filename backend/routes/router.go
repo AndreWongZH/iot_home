@@ -79,6 +79,8 @@ func privateRoutes(g *gin.RouterGroup) {
 
 	g.GET("/:roomname/wled_config/:ip", getWledConfigs)
 	g.POST("/:roomname/wled_config/set/:ip", setWled)
+
+	g.POST("/logout", logoutPost)
 }
 
 func AuthRequired(ctx *gin.Context) {
