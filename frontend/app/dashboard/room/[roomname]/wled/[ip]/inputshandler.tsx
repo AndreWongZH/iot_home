@@ -1,11 +1,11 @@
 "use client"
 
 import Loading from '@/app/dashboard/loading'
-import instance from '@/components/axiosInst'
 import { ColorChanger } from '@/components/colorChanger'
 import { Select } from '@/components/select'
 import { Slider } from '@/components/slider'
 import { effects, palettes } from '@/data/wled'
+import { Notify } from 'notiflix/build/notiflix-notify-aio'
 import { useEffect, useState } from 'react'
 import { Color } from 'react-color-palette'
 
@@ -41,15 +41,18 @@ export const InputsHandler = ({ roomName, ip }: { roomName: string, ip: string }
   }, [])
 
   const getWledInfo = () => {
-    instance.get(`${roomName}/wled_config/${ip}`)
-    .then(function (resp) {
-      const {success, data} = resp.data
+    fetch(`http://localhost:3001/${roomName}/wled_config/${ip}`,{
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+    .then((resp) => resp.json())
+    .then(({ success, data }) => {
       setWledInfo(data)
       setSuccess(success)
       setLoading(false)
-    })
-    .catch(function (err) {
-
     })
   }
 
@@ -57,14 +60,25 @@ export const InputsHandler = ({ roomName, ip }: { roomName: string, ip: string }
 
     console.log(wledInfo)
 
-    instance.post(`${roomName}/wled_config/set/${ip}`, wledInfo)
-    .then(function (resp) {
-      const {success, data} = resp.data
+    fetch(`http://localhost:3001/${roomName}/wled_config/set/${ip}`,{
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify(wledInfo)
     })
-    .catch(function (err) {
-
+    .then((resp) => resp.json())
+    .then(({ success, error }) => {
+      if (!success) {
+        Notify.failure(error, {
+          position: 'center-bottom',
+          timeout: 1500,
+          showOnlyTheLastOne: true,
+          clickToClose: true
+        })
+      }
     })
-
   }
 
   const onColorChange = (color: Color) => {
