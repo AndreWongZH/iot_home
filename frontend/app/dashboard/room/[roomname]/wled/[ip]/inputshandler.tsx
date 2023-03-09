@@ -35,6 +35,7 @@ export const InputsHandler = ({ roomName, ip }: { roomName: string, ip: string }
   const [wledInfo, setWledInfo] = useState<WledConfig>(emptyWledConfig)
   const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(true)
+  const [error, setError] = useState("")
 
   useEffect(() => {
     getWledInfo()
@@ -49,9 +50,11 @@ export const InputsHandler = ({ roomName, ip }: { roomName: string, ip: string }
       credentials: "include",
     })
     .then((resp) => resp.json())
-    .then(({ success, data }) => {
+    .then(({ success, data, error }) => {
       if (success) {
         setWledInfo(data)
+      } else {
+        setError(error)
       }
       setSuccess(success)
       setLoading(false)
@@ -143,7 +146,7 @@ export const InputsHandler = ({ roomName, ip }: { roomName: string, ip: string }
             : 
             <div className="mx-auto text-center mb-4 block w-3/4 rounded-lg bg-orange-500 p-4 text-base leading-5 text-white opacity-100">
               <h1 className="font-bold mb-2">Error fetching wled data</h1>
-              <h1 className="font-bold">Wled device is offline</h1>
+              <h1 className="font-bold">{error}</h1>
             </div>
           }
         

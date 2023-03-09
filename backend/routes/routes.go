@@ -151,6 +151,12 @@ func addDevice(ctx *gin.Context) {
 		return
 	}
 
+	b, err := database.Dbman.CheckIpExistInRoom(registeredDevice.Ipaddr, roomName)
+	if err != nil || b {
+		sendResultJson(ctx, false, errors.New("ip address already exist in "+roomName), nil)
+		return
+	}
+
 	if err := inputvalid.CheckDeviceInput(&registeredDevice); err != nil {
 		sendResultJson(ctx, false, err, nil)
 		return
@@ -169,6 +175,13 @@ func addDevice(ctx *gin.Context) {
 
 func showDevices(ctx *gin.Context) {
 	roomName := ctx.Param("roomname")
+
+	// check if roomName exist first
+	b, err := database.Dbman.CheckRoomExist(roomName)
+	if err != nil || !b {
+		sendResultJson(ctx, false, errors.New("invalid roomname"), nil)
+		return
+	}
 
 	devList, devStatus, err := database.Dbman.GetDevices(roomName)
 
@@ -235,13 +248,19 @@ func getWledConfigs(ctx *gin.Context) {
 
 	ip := ctx.Param("ip")
 
+	b, err := database.Dbman.CheckIpExist(ip)
+	if err != nil || !b {
+		sendResultJson(ctx, false, errors.New("ip address does not exist"), nil)
+		return
+	}
+
 	client := &http.Client{
 		Timeout: time.Second * 3,
 	}
 
 	resp, err := client.Get("http://" + ip + "/json")
 	if err != nil {
-		sendResultJson(ctx, false, err, nil)
+		sendResultJson(ctx, false, errors.New("wled device is offline"), nil)
 		return
 	}
 	defer resp.Body.Close()

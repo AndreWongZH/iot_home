@@ -7,9 +7,12 @@ import { DeviceList } from './deviceList';
 import { useEffect, useState } from 'react';
 import Loading from '../../loading';
 import { getSocketInstance } from '@/components/socket';
+import Error from '../../error';
 
 export default function Page({ params }: { params: {roomname: string;}}) {
   const [data, setData] = useState({devList: [], devStatus: {}})
+  const [error, setError] = useState("")
+  const [success, setSuccess] = useState(false)
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -42,8 +45,14 @@ export default function Page({ params }: { params: {roomname: string;}}) {
     .then((resp) => {
       return resp.json()
     })
-    .then(({ success, data }) => {
-      setData(data)
+    .then(({ success, data, error }) => {
+      setSuccess(success)
+      if (success) {
+        setData(data)
+      } else {
+        setError(error)
+      }
+      
       setLoading(false)
     })
 
@@ -56,11 +65,15 @@ export default function Page({ params }: { params: {roomname: string;}}) {
       </LinkHeader>
 
       {
-        loading ? <Loading /> : <DeviceList data={data} roomName={params.roomname}/>
+        loading ? <Loading /> : 
+        
+        success ? <DeviceList data={data} roomName={params.roomname}/> :
+
+        <Error error={error}/>
       }
       
       {
-        data.devList.length > 0
+        (!success || data.devList.length > 0)
           ? <></>
           :
           <div className='flex flex-col items-center justify-center'>

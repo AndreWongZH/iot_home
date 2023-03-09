@@ -2,6 +2,8 @@ package database
 
 import (
 	"database/sql"
+	"errors"
+	"fmt"
 	"log"
 
 	"github.com/AndreWongZH/iothome/models"
@@ -48,6 +50,10 @@ const getRoomId string = `SELECT room_id FROM rooms WHERE name=?`
 const insertNewRoom string = `INSERT INTO rooms (name) VALUES (?)`
 const getRooms string = `SELECT rooms.name, count(deviceInfo.room_id) FROM rooms LEFT JOIN deviceInfo ON rooms.room_id = deviceInfo.room_id GROUP BY rooms.name`
 
+const ifRoomExist string = `SELECT COUNT(*) FROM rooms WHERE name=?`
+const ifIpExist string = `SELECT COUNT(*) FROM deviceInfo WHERE ipaddr=?`
+const ifIpExistInRoom string = `SELECT COUNT(*) FROM deviceInfo WHERE ipaddr=? AND room_id=?`
+
 const insertNewDevInfo string = `INSERT INTO deviceInfo (room_id, name, ipaddr, type) VALUES (?, ? ,? ,?)`
 const insertNewDevStatus string = `INSERT INTO deviceStatus (device_id, connected, on_state) VALUES (?, ? ,?)`
 
@@ -56,7 +62,7 @@ const getDeviceInfo string = `SELECT dev.device_id, dev.name, dev.type, dev.conn
 
 const updateDeviceStatus string = `UPDATE deviceStatus SET on_state=? WHERE device_id=?`
 
-const deleteNewRoom string = `DELETE FROM rooms WHERE name="?"`
+const deleteNewRoom string = `DELETE FROM rooms WHERE name='?'`
 
 func InitDatabase() *sql.DB {
 	db, err := sql.Open("sqlite3", databaseFilePath)
@@ -221,6 +227,64 @@ func (s *DatabaseManager) GetRooms() ([]models.RoomInfo, error) {
 	}
 
 	return rooms, nil
+}
+
+func (s *DatabaseManager) CheckRoomExist(roomName string) (bool, error) {
+	row := s.Db.QueryRow(ifRoomExist, roomName)
+
+	var nameCount int
+
+	if err := row.Scan(&nameCount); err == sql.ErrNoRows {
+		return false, err
+	}
+
+	if nameCount > 0 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (s *DatabaseManager) CheckIpExist(ipaddr string) (bool, error) {
+	row := s.Db.QueryRow(ifIpExist, ipaddr)
+
+	var ipCount int
+
+	if err := row.Scan(&ipCount); err == sql.ErrNoRows {
+		return false, err
+	}
+
+	fmt.Println(ipCount)
+
+	if ipCount > 0 {
+		return true, nil
+	}
+
+	return false, nil
+}
+
+func (s *DatabaseManager) CheckIpExistInRoom(ipaddr string, roomName string) (bool, error) {
+	row := s.Db.QueryRow(getRoomId, roomName)
+	var roomId int
+	if err := row.Scan(&roomId); err == sql.ErrNoRows {
+		return false, errors.New("room id not found")
+	}
+
+	row = s.Db.QueryRow(ifIpExistInRoom, ipaddr, roomId)
+
+	var ipCount int
+
+	if err := row.Scan(&ipCount); err == sql.ErrNoRows {
+		return false, err
+	}
+
+	fmt.Println(ipCount)
+
+	if ipCount > 0 {
+		return true, nil
+	}
+
+	return false, nil
 }
 
 func PopulateDatabase() {
