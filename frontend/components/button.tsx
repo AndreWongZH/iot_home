@@ -6,10 +6,10 @@ import { IconType } from 'react-icons/lib'
 import { GoLightBulb } from 'react-icons/go'
 import { ImSwitch } from 'react-icons/im'
 import { TbDeviceSpeaker } from 'react-icons/tb'
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation';
 
-export const Button = ({onClick, Icon} : {onClick: any, Icon: IconType}) => {
+export const Button = ({ onClick, Icon }: { onClick: any, Icon: IconType }) => {
   return (
     <button
       className="shadow hover:bg-highlight focus:shadow-outline focus:outline-none text-white text-xs p-1 rounded bg-background-default"
@@ -23,15 +23,15 @@ export const Button = ({onClick, Icon} : {onClick: any, Icon: IconType}) => {
 }
 
 
-export const AddButton = ({onClick} : {onClick: Function | null}) => {
+export const AddButton = ({ onClick }: { onClick: Function | null }) => {
   return <Button onClick={onClick} Icon={IoMdAdd} />
 }
 
-export const BackButton = ({onClick} : {onClick: Function}) => {
+export const BackButton = ({ onClick }: { onClick: Function }) => {
   return <Button onClick={onClick} Icon={IoMdArrowRoundBack} />
 }
 
-const getDeviceIcon = (type : string) => {
+const getDeviceIcon = (type: string) => {
   if (type === "wled") {
     return <GoLightBulb size={80} />
   } else if (type === "switch") {
@@ -60,6 +60,11 @@ export const Device = ({ name, devStatus, type, roomName, ip, setMode }: DeviceA
   const [wait, setWait] = useState(false)
   const router = useRouter();
 
+  useEffect(() => {
+    setStatus(devStatus.connected)
+    setOn(devStatus.on_state)
+  }, [devStatus])
+
   async function toggleSwitch(event: React.SyntheticEvent) {
     event.preventDefault();
 
@@ -68,27 +73,27 @@ export const Device = ({ name, devStatus, type, roomName, ip, setMode }: DeviceA
     }
 
     setWait(true)
-    fetch(`http://localhost:3001/${roomName}/${ip}/${on ? "off" : "on"}`,{
+    fetch(`http://localhost:3001/${roomName}/${ip}/${on ? "off" : "on"}`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       credentials: "include",
     })
-    .then((resp) => resp.json())
-    .then(({ success, error }) => {
-      if (success) {
-        setOn(!on)
-      }
-      setWait(false)
-    })
+      .then((resp) => resp.json())
+      .then(({ success, error }) => {
+        if (success) {
+          setOn(!on)
+        }
+        setWait(false)
+      })
   }
 
   function goToSettings() {
     if (type == "wled") {
       router.push(`/dashboard/room/${roomName}/wled/${ip}`)
     }
-    
+
     return
   }
 

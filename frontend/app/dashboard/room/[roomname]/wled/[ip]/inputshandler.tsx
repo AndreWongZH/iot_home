@@ -50,7 +50,9 @@ export const InputsHandler = ({ roomName, ip }: { roomName: string, ip: string }
     })
     .then((resp) => resp.json())
     .then(({ success, data }) => {
-      setWledInfo(data)
+      if (success) {
+        setWledInfo(data)
+      }
       setSuccess(success)
       setLoading(false)
     })
