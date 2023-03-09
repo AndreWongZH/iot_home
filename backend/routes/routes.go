@@ -185,7 +185,7 @@ func showDevices(ctx *gin.Context) {
 
 	devList, devStatus, err := database.Dbman.GetDevices(roomName)
 
-	go device.QueryRoomDevices(devList, roomName)
+	go device.QueryRoomDevices(devList, devStatus, roomName)
 
 	if err != nil {
 		sendResultJson(ctx, false, err, nil)
@@ -203,13 +203,13 @@ func toggleDevice(ctx *gin.Context) {
 	ipAddr := ctx.Param("ip")
 	toggle := ctx.Param("toggle")
 
-	device_id, devInfo, _, err := database.Dbman.GetDevice(roomName, ipAddr)
+	_, devInfo, devStatus, err := database.Dbman.GetDevice(roomName, ipAddr)
 	if err != nil {
 		sendResultJson(ctx, false, err, nil)
 		return
 	}
 
-	if devInfo.Type == "wled" {
+	if devInfo.Type == "wled" && devStatus.On_state != (toggle == "on") {
 		var wledSwitch wled.WledSwitch
 		wledSwitch.On = toggle == "on"
 		marshalled, err := json.Marshal(wledSwitch)
@@ -230,11 +230,11 @@ func toggleDevice(ctx *gin.Context) {
 		defer resp.Body.Close()
 	}
 
-	on_state := 0
-	if toggle == "on" {
-		on_state = 1
+	if devStatus.On_state != (toggle == "on") {
+		devStatus.On_state = !devStatus.On_state
 	}
-	err = database.Dbman.UpdateDevStatus(device_id, on_state)
+
+	err = database.Dbman.UpdateDevStatus(roomName, ipAddr, devStatus)
 	if err != nil {
 		sendResultJson(ctx, false, err, nil)
 		return

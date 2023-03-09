@@ -60,7 +60,7 @@ const insertNewDevStatus string = `INSERT INTO deviceStatus (device_id, connecte
 const getDeviceInfoByRoom string = `SELECT dev.name, dev.ipaddr, dev.type, dev.connected, dev.on_state FROM rooms JOIN (SELECT * FROM deviceInfo JOIN deviceStatus WHERE deviceInfo.device_id = deviceStatus.device_id) as dev WHERE rooms.room_id = dev.room_id and rooms.name=?`
 const getDeviceInfo string = `SELECT dev.device_id, dev.name, dev.type, dev.connected, dev.on_state FROM rooms JOIN (SELECT * FROM deviceInfo JOIN deviceStatus WHERE deviceInfo.device_id = deviceStatus.device_id) as dev WHERE rooms.room_id = dev.room_id and rooms.name=? and dev.ipaddr=?`
 
-const updateDeviceStatus string = `UPDATE deviceStatus SET on_state=? WHERE device_id=?`
+const updateDeviceStatus string = `UPDATE deviceStatus SET connected=?, on_state=? WHERE device_id=?`
 
 const deleteNewRoom string = `DELETE FROM rooms WHERE name='?'`
 
@@ -155,8 +155,14 @@ func (s *DatabaseManager) AddDevice(dev models.RegisteredDevice, devStatus model
 	return nil
 }
 
-func (s *DatabaseManager) UpdateDevStatus(device_id int, on_state int) error {
-	_, err := s.Db.Exec(updateDeviceStatus, on_state, device_id)
+func (s *DatabaseManager) UpdateDevStatus(roomName string, ipAddr string, devStatus models.DeviceStatus) error {
+	device_id, _, _, err := Dbman.GetDevice(roomName, ipAddr)
+	if err != nil {
+		log.Println("failed to get device id")
+		return err
+	}
+
+	_, err = s.Db.Exec(updateDeviceStatus, devStatus.Connected, devStatus.On_state, device_id)
 	if err != nil {
 		return err
 	}
@@ -277,8 +283,6 @@ func (s *DatabaseManager) CheckIpExistInRoom(ipaddr string, roomName string) (bo
 	if err := row.Scan(&ipCount); err == sql.ErrNoRows {
 		return false, err
 	}
-
-	fmt.Println(ipCount)
 
 	if ipCount > 0 {
 		return true, nil

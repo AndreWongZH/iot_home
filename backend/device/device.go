@@ -2,10 +2,13 @@ package device
 
 import (
 	"encoding/json"
+	"fmt"
 	"io"
+	"log"
 	"net/http"
 	"time"
 
+	"github.com/AndreWongZH/iothome/database"
 	"github.com/AndreWongZH/iothome/models"
 	"github.com/AndreWongZH/iothome/socket"
 	"github.com/AndreWongZH/iothome/wled"
@@ -54,17 +57,51 @@ type WebsocketMessage struct {
 	RoomName    string                         `json:"roomname"`
 }
 
-func QueryRoomDevices(devList []models.RegisteredDevice, roomName string) {
-	devStatuses := make(map[string]models.DeviceStatus)
+func QueryRoomDevices(devList []models.RegisteredDevice, devStatuses map[string]models.DeviceStatus, roomName string) {
+	updatedDevStatuses := make(map[string]models.DeviceStatus)
 
 	for _, dev := range devList {
-		devStatuses[dev.Ipaddr] = QueryDevStatus("http://" + dev.Ipaddr + "/json")
+		updatedDevStatuses[dev.Ipaddr] = QueryDevStatus("http://" + dev.Ipaddr + "/json")
+
+		if updatedDevStatuses[dev.Ipaddr].Connected != devStatuses[dev.Ipaddr].Connected ||
+			updatedDevStatuses[dev.Ipaddr].On_state != devStatuses[dev.Ipaddr].On_state {
+
+			// write to database
+			err := database.Dbman.UpdateDevStatus(roomName, dev.Ipaddr, updatedDevStatuses[dev.Ipaddr])
+			if err != nil {
+				log.Println("failed to update to database")
+			}
+		}
 	}
 
-	// write to database
-
 	socket.BroadcastMsg(WebsocketMessage{
-		DevStatuses: devStatuses,
+		DevStatuses: updatedDevStatuses,
 		RoomName:    roomName,
 	})
+}
+
+func QueryAllDevices(exit chan bool) {
+	for {
+		fmt.Println("ping check for all devices")
+
+		roomList, err := database.Dbman.GetRooms()
+		if err != nil {
+			log.Println("Error getting room list")
+		}
+
+		for _, room := range roomList {
+			devList, devStatuses, err := database.Dbman.GetDevices(room.Name)
+			if err != nil {
+				log.Println("Error getting device list")
+			}
+			QueryRoomDevices(devList, devStatuses, room.Name)
+		}
+
+		select {
+		case <-exit:
+			return
+		default:
+			time.Sleep(1 * time.Minute)
+		}
+	}
 }
