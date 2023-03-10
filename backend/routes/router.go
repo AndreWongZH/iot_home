@@ -2,6 +2,7 @@ package routes
 
 import (
 	"errors"
+	"net/http"
 	"time"
 
 	"github.com/AndreWongZH/iothome/globals"
@@ -89,7 +90,7 @@ func AuthRequired(ctx *gin.Context) {
 	// fmt.Println(ctx.Request.Header)
 	// fmt.Println("user sessions:", user)
 	if user == nil {
-		sendResultJson(ctx, false, errors.New("user not logged in"), nil)
+		sendResultJson(ctx, false, errors.New("user not logged in"), nil, http.StatusUnauthorized)
 		return
 	}
 
