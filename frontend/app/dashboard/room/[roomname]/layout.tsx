@@ -1,4 +1,6 @@
-export default function BedroomLayout({ children }: { children: JSX.Element }) {
+import { ReactNode } from "react";
+
+export default function BedroomLayout({ children }: { children: ReactNode }) {
   return (
     <>
       {children}

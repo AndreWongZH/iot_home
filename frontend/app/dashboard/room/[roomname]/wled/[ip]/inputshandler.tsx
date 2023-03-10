@@ -62,9 +62,6 @@ export const InputsHandler = ({ roomName, ip }: { roomName: string, ip: string }
   }
 
   const setWledConfig = async () => {
-
-    console.log(wledInfo)
-
     fetch(`http://localhost:3001/${roomName}/wled_config/set/${ip}`,{
       method: "POST",
       headers: {

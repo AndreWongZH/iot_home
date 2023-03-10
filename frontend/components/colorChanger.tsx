@@ -4,9 +4,9 @@ import { useEffect, useState, useRef } from 'react'
 import { ColorPicker, useColor } from 'react-color-palette'
 import "react-color-palette/lib/css/styles.css";
 
-export const ColorChanger = ({ defaultColor, onColorChange }) => {
+export const ColorChanger = ({ defaultColor, onColorChange }: { defaultColor: Array<number>, onColorChange: Function }) => {
   const [dimension, setDims] = useState({ height: 0, width: 0 })
-  const pickerRef = useRef(null);
+  const pickerRef = useRef<HTMLDivElement>(null);
 
   const [color, setColor] = useColor("rgb", {
     r: defaultColor[0],
@@ -15,12 +15,16 @@ export const ColorChanger = ({ defaultColor, onColorChange }) => {
   })
 
   useEffect(() => {
-    const { height, width } = pickerRef.current.getBoundingClientRect();
+    if (pickerRef.current) {
+      const { height, width } = pickerRef.current.getBoundingClientRect();
 
-    setDims({
-      height: height,
-      width: width
-    })
+      setDims({
+        height: height,
+        width: width
+      })
+    }
+
+    
   }, []);
 
   return (
