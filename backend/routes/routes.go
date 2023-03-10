@@ -87,7 +87,7 @@ func loginPost(ctx *gin.Context) {
 	user = session.Get(globals.UserKey)
 	fmt.Println(user)
 
-	sendResultJson(ctx, true, nil, userCreds, http.StatusOK)
+	sendResultJson(ctx, true, nil, nil, http.StatusOK)
 }
 
 func logoutPost(ctx *gin.Context) {
@@ -106,6 +106,18 @@ func logoutPost(ctx *gin.Context) {
 	}
 
 	sendResultJson(ctx, true, nil, nil, http.StatusOK)
+}
+
+func getUsername(ctx *gin.Context) {
+	session := sessions.Default(ctx)
+	user := session.Get(globals.UserKey)
+
+	if user == nil {
+		sendResultJson(ctx, false, errors.New("user token is invalid"), nil, http.StatusBadRequest)
+		return
+	}
+
+	sendResultJson(ctx, true, nil, user, http.StatusOK)
 }
 
 func createRoom(ctx *gin.Context) {

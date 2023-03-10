@@ -2,12 +2,13 @@
 
 import Link from "next/link"
 import { useRouter } from "next/navigation"
+import { useEffect, useState } from "react";
 
 import { AiFillHome } from 'react-icons/ai'
 
 interface LinkHeaderArgs {
   href: string;
-  headerText: string;
+  headerText?: string;
   children: JSX.Element;
   showHome: boolean;
   disableMargin?: boolean;
@@ -15,6 +16,27 @@ interface LinkHeaderArgs {
 
 export const LinkHeader = ({ href, headerText, children, showHome, disableMargin = false }: LinkHeaderArgs) => {
   const router = useRouter()
+  const [username, setUsername] = useState("")
+
+  useEffect(() => {
+    getUsername()
+  }, [])
+
+  const getUsername = () => {
+    fetch("http://localhost:3001/user", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+      .then((resp) => resp.json())
+      .then(({ success, data }) => {
+        if (success) {
+          setUsername(data)
+        }
+      })
+  }
 
   return (
     <div className={`${disableMargin ? "" : "mb-12"} h-10 px-3 py-3 bg-white h-16 flex items-center justify-between`}>
@@ -28,7 +50,7 @@ export const LinkHeader = ({ href, headerText, children, showHome, disableMargin
         : <></>
       }
       
-      <h1 className="font-bold text-xl text-slate-600">{headerText}</h1>
+      <h1 className="font-bold text-xl text-slate-600">{headerText ? headerText : "Welcome home, " + username}</h1>
       <Link href={href}>{children}</Link>
     </div>
   )
