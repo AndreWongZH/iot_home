@@ -29,11 +29,7 @@ func CheckDeviceInput(registeredDevice *models.RegisteredDevice) error {
 		return errors.New("cannot have empty fields")
 	}
 
-	if strings.Contains(registeredDevice.Name, " ") {
-		return errors.New("device name contain spaces")
-	}
-
-	if len(registeredDevice.Name) > 10 {
+	if len(registeredDevice.Name) > 15 {
 		return errors.New("device name is too long")
 	}
 
