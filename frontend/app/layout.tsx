@@ -13,7 +13,7 @@ export default function RootLayout({
       */}
       <head />
       <body className='bg-outbounds'>
-        <div className='max-w-md mx-auto bg-background-default h-screen'>
+        <div className='max-w-md mx-auto bg-background-default min-h-screen h-max'>
           {children}
         </div>
       </body>

@@ -6,6 +6,7 @@ import { TbLogout } from 'react-icons/tb'
 import { AiFillHome } from 'react-icons/ai'
 import { useRouter } from 'next/navigation'
 import { Notify } from 'notiflix/build/notiflix-notify-aio'
+import { logoutEP } from '@/data/endpoints'
 
 export const BottomNav = () => {
   const router = useRouter()
@@ -13,7 +14,7 @@ export const BottomNav = () => {
   const logout = (e: React.SyntheticEvent) => {
     e.preventDefault()
 
-    fetch(`http://localhost:3001/logout`, {
+    fetch(logoutEP, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

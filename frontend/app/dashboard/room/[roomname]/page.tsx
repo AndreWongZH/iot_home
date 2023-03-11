@@ -8,6 +8,7 @@ import { useEffect, useState } from 'react';
 import Loading from '../../loading';
 import { getSocketInstance } from '@/components/socket';
 import Error from '../../error';
+import { devicesEP } from '@/data/endpoints';
 
 export default function Page({ params }: { params: {roomname: string;}}) {
   const [data, setData] = useState({devList: [], devStatus: {}})
@@ -35,7 +36,7 @@ export default function Page({ params }: { params: {roomname: string;}}) {
   }, [])
 
   const getDeviceData = () => {
-    fetch(`http://localhost:3001/${params.roomname}/devices`,{
+    fetch(devicesEP(params.roomname),{
       method: "GET",
       headers: {
         "Content-Type": "application/json",

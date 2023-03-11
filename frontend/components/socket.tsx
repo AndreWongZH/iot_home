@@ -1,5 +1,7 @@
 "use client"
 
+import { websocketEP } from "@/data/endpoints";
+
 var W3CWebSocket = require('websocket').w3cwebsocket;
 
 interface SocketService {
@@ -10,7 +12,7 @@ class SocketService {
   constructor() {
     // check for cookie first
 
-    this.client = new W3CWebSocket('ws://localhost:3001/ws', "", {
+    this.client = new W3CWebSocket(websocketEP, "", {
       headers: {
         Cookie: document.cookie
       }

@@ -1,5 +1,6 @@
 "use client"
 
+import { loginEP } from "@/data/endpoints"
 import { useRouter } from "next/navigation"
 import { Notify } from "notiflix/build/notiflix-notify-aio"
 import { useState } from "react"
@@ -17,7 +18,7 @@ export default function Page() {
       password
     }
 
-    fetch("http://localhost:3001/login", {
+    fetch(loginEP, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

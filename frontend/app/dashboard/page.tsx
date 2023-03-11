@@ -5,6 +5,7 @@ import { AddButton } from '@/components/button';
 import { LinkHeader } from './linkheader';
 import { useEffect, useState } from 'react';
 import Loading from './loading';
+import { roomsEP } from '@/data/endpoints';
 
 const RoomTile = ({name, count} :{ name: string, count: number }) => {
   return (
@@ -48,7 +49,7 @@ export default function Page() {
   }, [])
 
   const getRoomData = () => {
-    fetch("http://localhost:3001/rooms",{
+    fetch(roomsEP,{
       method: "GET",
       headers: {
         "Content-Type": "application/json",

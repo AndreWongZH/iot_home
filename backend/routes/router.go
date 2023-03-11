@@ -70,16 +70,16 @@ func publicRoutes(g *gin.RouterGroup) {
 }
 
 func privateRoutes(g *gin.RouterGroup) {
-	g.POST("/createrm", createRoom)
+	g.POST("/create-room", createRoom)
 	g.GET("/rooms", getRooms)
 
-	g.POST("/:roomname/add_device", addDevice)
+	g.POST("/:roomname/add-device", addDevice)
 	g.GET("/:roomname/devices", showDevices)
 
 	g.POST("/:roomname/:ip/:toggle", toggleDevice)
 
-	g.GET("/:roomname/wled_config/:ip", getWledConfigs)
-	g.POST("/:roomname/wled_config/set/:ip", setWled)
+	g.GET("/:roomname/:ip/wled-config", getWledConfigs)
+	g.POST("/:roomname/:ip/wled-config", setWled)
 
 	g.POST("/logout", logoutPost)
 	g.GET("/user", getUsername)

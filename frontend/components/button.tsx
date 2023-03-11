@@ -8,6 +8,7 @@ import { ImSwitch } from 'react-icons/im'
 import { TbDeviceSpeaker } from 'react-icons/tb'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation';
+import { toggleEP } from '@/data/endpoints'
 
 export const Button = ({ onClick, Icon }: { onClick: any, Icon: IconType }) => {
   return (
@@ -73,7 +74,8 @@ export const Device = ({ name, devStatus, type, roomName, ip, setMode }: DeviceA
     }
 
     setWait(true)
-    fetch(`http://localhost:3001/${roomName}/${ip}/${on ? "off" : "on"}`, {
+
+    fetch(toggleEP(roomName, ip, on ? "off" : "on"), {
       method: "POST",
       headers: {
         "Content-Type": "application/json",

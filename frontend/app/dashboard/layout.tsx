@@ -8,6 +8,7 @@ export default function DashboardLayout({
   return (
     <>
       {children}
+      <div className="h-24"></div>
       <BottomNav />
     </>
   );

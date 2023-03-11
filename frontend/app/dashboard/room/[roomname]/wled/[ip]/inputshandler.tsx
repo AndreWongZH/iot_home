@@ -4,6 +4,7 @@ import Loading from '@/app/dashboard/loading'
 import { ColorChanger } from '@/components/colorChanger'
 import { Select } from '@/components/select'
 import { Slider } from '@/components/slider'
+import { wledConfigEP } from '@/data/endpoints'
 import { effects, palettes } from '@/data/wled'
 import { Notify } from 'notiflix/build/notiflix-notify-aio'
 import { useEffect, useState } from 'react'
@@ -42,7 +43,7 @@ export const InputsHandler = ({ roomName, ip }: { roomName: string, ip: string }
   }, [])
 
   const getWledInfo = () => {
-    fetch(`http://localhost:3001/${roomName}/wled_config/${ip}`,{
+    fetch(wledConfigEP(roomName, ip),{
       method: "GET",
       headers: {
         "Content-Type": "application/json",
@@ -62,7 +63,7 @@ export const InputsHandler = ({ roomName, ip }: { roomName: string, ip: string }
   }
 
   const setWledConfig = async () => {
-    fetch(`http://localhost:3001/${roomName}/wled_config/set/${ip}`,{
+    fetch(wledConfigEP(roomName, ip),{
       method: "POST",
       headers: {
         "Content-Type": "application/json",

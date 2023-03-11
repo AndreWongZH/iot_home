@@ -4,6 +4,7 @@ import { BackHeader } from '@/components/header';
 import { useRouter } from 'next/navigation';
 import React, { useState } from 'react';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
+import { addDeviceEP } from '@/data/endpoints';
 
 export default function Page({ params }: { params: { roomname: string } }) {
   const router = useRouter();
@@ -21,7 +22,7 @@ export default function Page({ params }: { params: { roomname: string } }) {
       type: type
     }
 
-    fetch(`http://localhost:3001/${params.roomname}/add_device`,{
+    fetch(addDeviceEP(params.roomname),{
       method: "POST",
       headers: {
         "Content-Type": "application/json",

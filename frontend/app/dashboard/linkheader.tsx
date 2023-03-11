@@ -1,5 +1,6 @@
 "use client"
 
+import { userEP } from "@/data/endpoints";
 import Link from "next/link"
 import { useRouter } from "next/navigation"
 import { useEffect, useState } from "react";
@@ -23,7 +24,7 @@ export const LinkHeader = ({ href, headerText, children, showHome, disableMargin
   }, [])
 
   const getUsername = () => {
-    fetch("http://localhost:3001/user", {
+    fetch(userEP, {
       method: "GET",
       headers: {
         "Content-Type": "application/json",

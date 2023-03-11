@@ -1,6 +1,7 @@
 "use client"
 
 import { BackHeader } from '@/components/header';
+import { createRoomEP } from '@/data/endpoints';
 import { useRouter } from 'next/navigation';
 import { Notify } from 'notiflix/build/notiflix-notify-aio';
 import React, { useState } from 'react';
@@ -16,7 +17,7 @@ export default function Page() {
       name: room,
     }
 
-    fetch("http://localhost:3001/createrm",{
+    fetch(createRoomEP,{
       method: "POST",
       headers: {
         "Content-Type": "application/json",
