@@ -1,4 +1,12 @@
-const baseUrl = "http://localhost:"
+
+let baseUrl: string
+if (process.env.API_ENDPOINT_URL) {
+    console.log("you are running on: ")
+    console.log(process.env.API_ENDPOINT_URL)
+    baseUrl = process.env.API_ENDPOINT_URL
+} else {
+    baseUrl = "http://localhost:"
+}
 const port = "3001"
 
 export const loginEP = `${baseUrl}${port}/login`
