@@ -176,7 +176,7 @@ func addDevice(ctx *gin.Context) {
 		return
 	}
 
-	devStatus := device.QueryDevStatus("http://" + registeredDevice.Ipaddr + "/json")
+	devStatus := device.QueryDevStatus(registeredDevice.Ipaddr, registeredDevice.Type)
 
 	err = database.Dbman.AddDevice(registeredDevice, devStatus, roomName)
 	if err != nil {
@@ -242,6 +242,16 @@ func toggleDevice(ctx *gin.Context) {
 		// need to check if resp is success also
 
 		defer resp.Body.Close()
+	}
+
+	if devInfo.Type == models.Switch && devStatus.On_state != (toggle == "on") {
+		resp, err := http.Get("http://" + ipAddr + "/cm?cmnd=Power%20TOGGLE")
+		if err != nil {
+			sendResultJson(ctx, false, err, nil, http.StatusOK)
+			return
+		}
+		fmt.Println(resp)
+		// need to check if resp is success also
 	}
 
 	if devStatus.On_state != (toggle == "on") {

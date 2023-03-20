@@ -56,7 +56,6 @@ export default function Page({ params }: { params: {roomname: string;}}) {
       
       setLoading(false)
     })
-
   }
 
   return (
