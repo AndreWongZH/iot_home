@@ -5,9 +5,15 @@ import (
 	"log"
 	"net/http"
 
+	"github.com/AndreWongZH/iothome/models"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
 )
+
+type DevStatusesMsg struct {
+	DevStatuses map[string]models.DeviceStatus `json:"devstatuses"`
+	RoomName    string                         `json:"roomname"`
+}
 
 var upgrader = websocket.Upgrader{
 	ReadBufferSize:  1024,
@@ -25,6 +31,7 @@ func WebsocketHandler(ctx *gin.Context) {
 		log.Println("failed to upgrade to websockets")
 	}
 
+	// if ws conn is closed, remove from our array of connectedSockets
 	conn.SetCloseHandler(func(code int, text string) error {
 		for i, c := range connectedSockets {
 			if c == conn {
@@ -40,23 +47,23 @@ func WebsocketHandler(ctx *gin.Context) {
 	defer conn.Close()
 	connectedSockets = append(connectedSockets, conn)
 
-	type Data struct {
-		Success string `json:"success"`
-	}
+	// doesnt listen to ws from client side
 
-	var datapacket Data
-
-	for {
-		// messageType, p, err := conn.ReadJSON(&datapacket)
-		err := conn.ReadJSON(&datapacket)
-		if err != nil {
-			fmt.Println(err)
-			return
-		}
-		// fmt.Println("message type: ", messageType)
-		// fmt.Println("data: ", p)
-		fmt.Println("data: ", datapacket.Success)
-	}
+	// type Data struct {
+	// 	Success string `json:"success"`
+	// }
+	// var datapacket Data
+	// for {
+	// 	// messageType, p, err := conn.ReadJSON(&datapacket)
+	// 	err := conn.ReadJSON(&datapacket)
+	// 	if err != nil {
+	// 		fmt.Println(err)
+	// 		return
+	// 	}
+	// 	// fmt.Println("message type: ", messageType)
+	// 	// fmt.Println("data: ", p)
+	// 	fmt.Println("data: ", datapacket.Success)
+	// }
 }
 
 func BroadcastMsg(data interface{}) {

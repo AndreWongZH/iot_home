@@ -46,23 +46,25 @@ const createDevStatus string = `
 	)
 `
 
-const getRoomId string = `SELECT room_id FROM rooms WHERE name=?`
-const insertNewRoom string = `INSERT INTO rooms (name) VALUES (?)`
-const getRooms string = `SELECT rooms.name, count(deviceInfo.room_id) FROM rooms LEFT JOIN deviceInfo ON rooms.room_id = deviceInfo.room_id GROUP BY rooms.name`
+const (
+	getRoomId     string = `SELECT room_id FROM rooms WHERE name=?`
+	insertNewRoom string = `INSERT INTO rooms (name) VALUES (?)`
+	getRooms      string = `SELECT rooms.name, count(deviceInfo.room_id) FROM rooms LEFT JOIN deviceInfo ON rooms.room_id = deviceInfo.room_id GROUP BY rooms.name`
 
-const ifRoomExist string = `SELECT COUNT(*) FROM rooms WHERE name=?`
-const ifIpExist string = `SELECT COUNT(*) FROM deviceInfo WHERE ipaddr=?`
-const ifIpExistInRoom string = `SELECT COUNT(*) FROM deviceInfo WHERE ipaddr=? AND room_id=?`
+	ifRoomExist     string = `SELECT COUNT(*) FROM rooms WHERE name=?`
+	ifIpExist       string = `SELECT COUNT(*) FROM deviceInfo WHERE ipaddr=?`
+	ifIpExistInRoom string = `SELECT COUNT(*) FROM deviceInfo WHERE ipaddr=? AND room_id=?`
 
-const insertNewDevInfo string = `INSERT INTO deviceInfo (room_id, name, ipaddr, type) VALUES (?, ? ,? ,?)`
-const insertNewDevStatus string = `INSERT INTO deviceStatus (device_id, connected, on_state) VALUES (?, ? ,?)`
+	insertNewDevInfo   string = `INSERT INTO deviceInfo (room_id, name, ipaddr, type) VALUES (?, ? ,? ,?)`
+	insertNewDevStatus string = `INSERT INTO deviceStatus (device_id, connected, on_state) VALUES (?, ? ,?)`
 
-const getDeviceInfoByRoom string = `SELECT dev.name, dev.ipaddr, dev.type, dev.connected, dev.on_state FROM rooms JOIN (SELECT * FROM deviceInfo JOIN deviceStatus WHERE deviceInfo.device_id = deviceStatus.device_id) as dev WHERE rooms.room_id = dev.room_id and rooms.name=?`
-const getDeviceInfo string = `SELECT dev.device_id, dev.name, dev.type, dev.connected, dev.on_state FROM rooms JOIN (SELECT * FROM deviceInfo JOIN deviceStatus WHERE deviceInfo.device_id = deviceStatus.device_id) as dev WHERE rooms.room_id = dev.room_id and rooms.name=? and dev.ipaddr=?`
+	getDeviceInfoByRoom string = `SELECT dev.name, dev.ipaddr, dev.type, dev.connected, dev.on_state FROM rooms JOIN (SELECT * FROM deviceInfo JOIN deviceStatus WHERE deviceInfo.device_id = deviceStatus.device_id) as dev WHERE rooms.room_id = dev.room_id and rooms.name=?`
+	getDeviceInfo       string = `SELECT dev.device_id, dev.name, dev.type, dev.connected, dev.on_state FROM rooms JOIN (SELECT * FROM deviceInfo JOIN deviceStatus WHERE deviceInfo.device_id = deviceStatus.device_id) as dev WHERE rooms.room_id = dev.room_id and rooms.name=? and dev.ipaddr=?`
 
-const updateDeviceStatus string = `UPDATE deviceStatus SET connected=?, on_state=? WHERE device_id=?`
+	updateDeviceStatus string = `UPDATE deviceStatus SET connected=?, on_state=? WHERE device_id=?`
 
-const deleteNewRoom string = `DELETE FROM rooms WHERE name='?'`
+	deleteNewRoom string = `DELETE FROM rooms WHERE name='?'`
+)
 
 func InitDatabase() *sql.DB {
 	db, err := sql.Open("sqlite3", databaseFilePath)
@@ -291,16 +293,34 @@ func (s *DatabaseManager) CheckIpExistInRoom(ipaddr string, roomName string) (bo
 	return false, nil
 }
 
+// for testing purposes
 func PopulateDatabase() {
 
 	Dbman.AddRoom(models.RoomInfo{Name: "kekw"})
 	Dbman.AddRoom(models.RoomInfo{Name: "bedroom"})
-	// Dbman.AddDevice(models.RegisteredDevice{Name: "andre", Type: "wled", Ipaddr: "192.168.1.1", Hostname: "123"}, "kekw")
-	// Dbman.AddDevice(models.RegisteredDevice{Name: "betty", Type: "wled", Ipaddr: "192.168.1.2", Hostname: "456"}, "kekw")
-	// Dbman.AddDevice(models.RegisteredDevice{Name: "cathy", Type: "wled", Ipaddr: "192.168.1.3", Hostname: "789"}, "kekw")
-	// Dbman.AddDevice(models.RegisteredDevice{Name: "deuick", Type: "wled", Ipaddr: "192.168.1.4", Hostname: "023"}, "kekw")
-	// Dbman.AddDevice(models.RegisteredDevice{Name: "andre", Type: "wled", Ipaddr: "192.168.1.1", Hostname: "123"}, "bedroom")
-	// Dbman.AddDevice(models.RegisteredDevice{Name: "betty", Type: "wled", Ipaddr: "192.168.1.2", Hostname: "456"}, "bedroom")
-	// Dbman.AddDevice(models.RegisteredDevice{Name: "cathy", Type: "wled", Ipaddr: "192.168.1.3", Hostname: "789"}, "bedroom")
-	// Dbman.AddDevice(models.RegisteredDevice{Name: "deuick", Type: "wled", Ipaddr: "192.168.1.4", Hostname: "023"}, "bedroom")
+	Dbman.AddDevice(
+		models.RegisteredDevice{Name: "andre", Type: "wled", Ipaddr: "192.168.1.1", Hostname: "123"},
+		models.DeviceStatus{Connected: false, On_state: false},
+		"kekw",
+	)
+	Dbman.AddDevice(
+		models.RegisteredDevice{Name: "betty", Type: "switch", Ipaddr: "192.168.1.2", Hostname: "123"},
+		models.DeviceStatus{Connected: false, On_state: false},
+		"kekw",
+	)
+	Dbman.AddDevice(
+		models.RegisteredDevice{Name: "cathy", Type: "wled", Ipaddr: "192.168.1.3", Hostname: "123"},
+		models.DeviceStatus{Connected: false, On_state: false},
+		"kekw",
+	)
+	Dbman.AddDevice(
+		models.RegisteredDevice{Name: "derick", Type: "switch", Ipaddr: "192.168.1.4", Hostname: "123"},
+		models.DeviceStatus{Connected: false, On_state: false},
+		"kekw",
+	)
+	Dbman.AddDevice(
+		models.RegisteredDevice{Name: "eagle", Type: "wled", Ipaddr: "192.168.1.5", Hostname: "123"},
+		models.DeviceStatus{Connected: false, On_state: false},
+		"kekw",
+	)
 }

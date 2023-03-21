@@ -13,18 +13,8 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-// func GinMiddleware(allowOrigin string) gin.HandlerFunc {
-// 	return func(c *gin.Context) {
-// 		c.Writer.Header().Set("Access-Control-Allow-Origin", allowOrigin)
-// 		c.Writer.Header().Set("Access-Control-Allow-Credentials", "true")
-// 	}
-// }
-
-// func InitRouter(socketServer *socketio.Server) *gin.Engine {
 func InitRouter() *gin.Engine {
 	r := gin.Default()
-
-	// r.Use(GinMiddleware("http://localhost:3000"))
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"http://localhost:3000"},
@@ -39,8 +29,7 @@ func InitRouter() *gin.Engine {
 
 	store := cookie.NewStore([]byte("secret"))
 	store.Options(sessions.Options{
-		MaxAge: 60 * 60 * 24 * 7,
-		// SameSite: http.SameSiteNoneMode,
+		MaxAge:   60 * 60 * 24 * 7,
 		HttpOnly: false,
 		Secure:   false,
 	})
@@ -57,9 +46,6 @@ func InitRouter() *gin.Engine {
 	private.GET("/ws", socket.WebsocketHandler)
 
 	// r.GET("/discover", discoverNetworkDevices)
-
-	// r.GET("/socket.io/*any", gin.WrapH(socketServer))
-	// r.POST("/socket.io/*any", gin.WrapH(socketServer))
 
 	return r
 }
@@ -88,8 +74,6 @@ func privateRoutes(g *gin.RouterGroup) {
 func AuthRequired(ctx *gin.Context) {
 	session := sessions.Default(ctx)
 	user := session.Get(globals.UserKey)
-	// fmt.Println(ctx.Request.Header)
-	// fmt.Println("user sessions:", user)
 	if user == nil {
 		sendResultJson(ctx, false, errors.New("user not logged in"), nil, http.StatusUnauthorized)
 		return

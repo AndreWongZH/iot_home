@@ -13,10 +13,10 @@ import (
 
 	"github.com/AndreWongZH/iothome/database"
 	"github.com/AndreWongZH/iothome/device"
+	"github.com/AndreWongZH/iothome/device/wled"
 	"github.com/AndreWongZH/iothome/globals"
 	"github.com/AndreWongZH/iothome/inputvalid"
 	"github.com/AndreWongZH/iothome/models"
-	"github.com/AndreWongZH/iothome/wled"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
 )

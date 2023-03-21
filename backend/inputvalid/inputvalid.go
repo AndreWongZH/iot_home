@@ -37,8 +37,10 @@ func CheckDeviceInput(registeredDevice *models.RegisteredDevice) error {
 		return errors.New("ip is not valid")
 	}
 
-	// TODO
-	// check for device type
+	// check for valid device type
+	if registeredDevice.Type != models.Switch && registeredDevice.Type != models.Wled {
+		return errors.New("device type not allowed")
+	}
 
 	return nil
 }

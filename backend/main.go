@@ -18,18 +18,12 @@ func main() {
 	db := database.InitDatabase()
 	database.InitializeGlobals(db)
 
-	// socketServer := socket.InitSocket()
-
-	// go socketServer.Serve()
-	// defer socketServer.Close()
-
 	r := routes.InitRouter()
 
 	exit := make(chan bool)
 	go device.QueryAllDevices(exit)
 
 	fmt.Println("Starting server on port", port)
-	// r.Run("localhost:" + port)
 	r.Run(":" + port)
 
 	defer cleanup(exit)
