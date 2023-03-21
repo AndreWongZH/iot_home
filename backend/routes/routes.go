@@ -19,6 +19,7 @@ import (
 	"github.com/AndreWongZH/iothome/models"
 	"github.com/gin-contrib/sessions"
 	"github.com/gin-gonic/gin"
+	"golang.org/x/crypto/bcrypt"
 )
 
 func sendResultJson(ctx *gin.Context, success bool, err error, data interface{}, httpCode int) {
@@ -59,6 +60,34 @@ func getServerStatus(ctx *gin.Context) {
 	})
 }
 
+func registerPost(ctx *gin.Context) {
+	var userCreds models.UserCreds
+
+	err := ctx.BindJSON(&userCreds)
+	if err != nil {
+		fmt.Println("Error here")
+		log.Println(err)
+		sendResultJson(ctx, false, err, nil, http.StatusInternalServerError)
+		return
+	}
+
+	hash, err := bcrypt.GenerateFromPassword([]byte(userCreds.Password), 6)
+	if err != nil {
+		log.Println(err)
+		sendResultJson(ctx, false, err, nil, http.StatusInternalServerError)
+		return
+	}
+
+	// save to database
+	err = database.Dbman.AddUser(userCreds.Username, string(hash))
+	if err != nil {
+		sendResultJson(ctx, false, err, nil, http.StatusInternalServerError)
+		return
+	}
+
+	sendResultJson(ctx, true, nil, nil, http.StatusOK)
+}
+
 func loginPost(ctx *gin.Context) {
 	var userCreds models.UserCreds
 
@@ -74,6 +103,20 @@ func loginPost(ctx *gin.Context) {
 	if err != nil {
 		log.Println(err)
 		sendResultJson(ctx, false, err, nil, http.StatusInternalServerError)
+		return
+	}
+
+	// get user hash from db
+	hash, err := database.Dbman.QueryUserHash(userCreds.Username)
+	if err != nil {
+		sendResultJson(ctx, false, errors.New("failed to login"), nil, http.StatusUnauthorized)
+		return
+	}
+
+	// do comparison
+	err = bcrypt.CompareHashAndPassword(hash, []byte(userCreds.Password))
+	if err != nil {
+		sendResultJson(ctx, false, errors.New("failed to login"), nil, http.StatusUnauthorized)
 		return
 	}
 

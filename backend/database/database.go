@@ -12,41 +12,53 @@ import (
 
 const databaseFilePath = "iothome.db"
 
-const createRooms string = `
-	CREATE TABLE IF NOT EXISTS rooms (
-		room_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		name TEXT
-	)
-`
+const (
+	createRooms string = `
+		CREATE TABLE IF NOT EXISTS rooms (
+			room_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			name TEXT
+		)
+	`
 
-const createDevInfo string = `
-	CREATE TABLE IF NOT EXISTS deviceInfo (
-		room_id INTEGER NOT NULL,
-		device_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		name TEXT NOT NULL,
-		ipaddr TEXT NOT NULL,
-		type TEXT NOT NULL,
-		hostname TEXT,
-		macaddress TEXT,
-		FOREIGN KEY (room_id)
-			REFERENCES rooms (room_id)
-				ON DELETE CASCADE
-	)
-`
+	createDevInfo string = `
+		CREATE TABLE IF NOT EXISTS deviceInfo (
+			room_id INTEGER NOT NULL,
+			device_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			name TEXT NOT NULL,
+			ipaddr TEXT NOT NULL,
+			type TEXT NOT NULL,
+			hostname TEXT,
+			macaddress TEXT,
+			FOREIGN KEY (room_id)
+				REFERENCES rooms (room_id)
+					ON DELETE CASCADE
+		)
+	`
 
-const createDevStatus string = `
-	CREATE TABLE IF NOT EXISTS deviceStatus (
-		device_status_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-		device_id INTEGER NOT NULL,
-		connected INTEGER NOT NULL,
-		on_state INTEGER NOT NULL,
-		FOREIGN KEY (device_id)
-			REFERENCES deviceInfo (device_id)
-				ON DELETE CASCADE
-	)
-`
+	createDevStatus string = `
+		CREATE TABLE IF NOT EXISTS deviceStatus (
+			device_status_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
+			device_id INTEGER NOT NULL,
+			connected INTEGER NOT NULL,
+			on_state INTEGER NOT NULL,
+			FOREIGN KEY (device_id)
+				REFERENCES deviceInfo (device_id)
+					ON DELETE CASCADE
+		)
+	`
+
+	createUsers string = `
+	CREATE TABLE IF NOT EXISTS users (
+		username TEXT NOT NULL UNIQUE,
+		hash TEXT NOT NULL
+		)
+	`
+)
 
 const (
+	insertUser     string = `INSERT INTO users (username, hash) VALUES (?,?)`
+	checkUserExist string = `SELECT hash FROM users WHERE username=?`
+
 	getRoomId     string = `SELECT room_id FROM rooms WHERE name=?`
 	insertNewRoom string = `INSERT INTO rooms (name) VALUES (?)`
 	getRooms      string = `SELECT rooms.name, count(deviceInfo.room_id) FROM rooms LEFT JOIN deviceInfo ON rooms.room_id = deviceInfo.room_id GROUP BY rooms.name`
@@ -91,6 +103,11 @@ func InitDatabase() *sql.DB {
 		log.Println(err)
 	}
 
+	if _, err := db.Exec(createUsers); err != nil {
+		log.Println("Failed to create new users table")
+		log.Println(err)
+	}
+
 	return db
 }
 
@@ -104,6 +121,35 @@ func InitializeGlobals(db *sql.DB) {
 	Dbman = &DatabaseManager{
 		Db: db,
 	}
+}
+
+func (s *DatabaseManager) AddUser(username string, hash string) error {
+	row := s.Db.QueryRow(checkUserExist, username)
+	var hashdb string
+	if err := row.Scan(&hashdb); err == sql.ErrNoRows {
+
+		_, err := s.Db.Exec(insertUser, username, hash)
+		if err != nil {
+			log.Println("error inserting entry into table")
+			log.Println(err)
+			return err
+		}
+
+	} else {
+		return errors.New("username already in use")
+	}
+
+	return nil
+}
+
+func (s *DatabaseManager) QueryUserHash(username string) ([]byte, error) {
+	row := s.Db.QueryRow(checkUserExist, username)
+	var hashdb string
+	if err := row.Scan(&hashdb); err == sql.ErrNoRows {
+		return nil, errors.New("username not found")
+	}
+
+	return []byte(hashdb), nil
 }
 
 func (s *DatabaseManager) AddRoom(room models.RoomInfo) error {

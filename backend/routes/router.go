@@ -53,6 +53,7 @@ func InitRouter() *gin.Engine {
 func publicRoutes(g *gin.RouterGroup) {
 	g.GET("/", getServerStatus)
 	g.POST("/login", loginPost)
+	g.POST("/register", registerPost)
 }
 
 func privateRoutes(g *gin.RouterGroup) {
