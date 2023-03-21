@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation"
 import { Notify } from "notiflix/build/notiflix-notify-aio"
 import { useState } from "react"
 
-export default function Page() {
+export const Login = () => {
   const router = useRouter()
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
