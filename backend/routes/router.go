@@ -6,6 +6,7 @@ import (
 	"time"
 
 	"github.com/AndreWongZH/iothome/globals"
+	"github.com/AndreWongZH/iothome/nmap"
 	"github.com/AndreWongZH/iothome/socket"
 	"github.com/gin-contrib/cors"
 	"github.com/gin-contrib/sessions"
@@ -57,6 +58,8 @@ func publicRoutes(g *gin.RouterGroup) {
 }
 
 func privateRoutes(g *gin.RouterGroup) {
+	g.GET("/discover", nmap.DiscoverNetworkDevices)
+
 	g.POST("/create-room", createRoom)
 	g.GET("/rooms", getRooms)
 

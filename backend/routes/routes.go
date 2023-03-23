@@ -372,8 +372,3 @@ func setWled(ctx *gin.Context) {
 
 	sendResultJson(ctx, true, nil, nil, http.StatusOK)
 }
-
-// func discoverNetworkDevices(ctx *gin.Context) {
-// scan for network devices
-// using ssdp
-// }
