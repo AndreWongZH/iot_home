@@ -1,6 +1,7 @@
 "use client"
 
 import Loading from '@/app/dashboard/loading'
+import { DeleteDevice } from '@/components/button'
 import { ColorChanger } from '@/components/colorChanger'
 import { Select } from '@/components/select'
 import { Slider } from '@/components/slider'
@@ -160,6 +161,8 @@ export const InputsHandler = ({ roomName, ip }: { roomName: string, ip: string }
             >
               Change
             </button>
+
+            <DeleteDevice roomName={roomName} ip={ip} />
           </div>
         </>)
       }

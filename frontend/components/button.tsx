@@ -8,7 +8,8 @@ import { ImSwitch } from 'react-icons/im'
 import { TbDeviceSpeaker } from 'react-icons/tb'
 import React, { useEffect, useState } from 'react'
 import { useRouter } from 'next/navigation';
-import { toggleEP } from '@/data/endpoints'
+import { delDeviceEP, toggleEP } from '@/data/endpoints'
+import { Confirm } from 'notiflix'
 
 export const Button = ({ onClick, Icon }: { onClick: any, Icon: IconType }) => {
   return (
@@ -112,6 +113,42 @@ export const Device = ({ name, devStatus, type, roomName, ip, setMode }: DeviceA
         <h3 className="font-bold text-lg text-left">{name}</h3>
         <p className="font-light text-left">{on ? "on" : "off"}</p>
       </div>
+    </button>
+  )
+}
+
+export const DeleteDevice = ({ roomName, ip }: { roomName: string , ip: string }) => {
+  const router = useRouter();
+
+  const deleteDevice = () => {
+    Confirm.show("Delete device from" + roomName,
+      "Do you really want to delete this device?",
+      "Yes", "No",
+      () => { 
+        fetch(delDeviceEP(roomName, ip), {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        })
+          .then((resp) => resp.json())
+          .then(({ success, error }) => {
+            if (success) {
+              router.replace(`/dashboard/room/${roomName}`)
+            }
+          })
+
+      },
+      () => { })
+  }
+
+  return (
+    <button
+      className="w-full hover:shadow-lg rounded-md bg-red-600 py-3 mt-12 text-center text-base font-semibold text-white outline-none"
+      onClick={() => { deleteDevice() }}
+    >
+      Delete device
     </button>
   )
 }

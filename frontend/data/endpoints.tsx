@@ -26,6 +26,9 @@ export const devicesEP = (roomName: string) => {
     return `${baseUrl}${port}/${roomName}/devices`
 }
 
+export const delDeviceEP = (roomName: string, ip: string) => {
+    return `${baseUrl}${port}/${roomName}/${ip}/delete-device`
+}
 export const toggleEP = (roomName: string, ip: string, toggle: string) => {
     return `${baseUrl}${port}/${roomName}/${ip}/${toggle}`
 }
