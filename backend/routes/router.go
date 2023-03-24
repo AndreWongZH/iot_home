@@ -19,7 +19,7 @@ func InitRouter() *gin.Engine {
 
 	r.Use(cors.New(cors.Config{
 		AllowOrigins:  []string{"http://localhost:3000"},
-		AllowMethods:  []string{"POST", "GET", "PUT", "OPTIONS"},
+		AllowMethods:  []string{"POST", "GET", "PUT", "OPTIONS", "DELETE"},
 		AllowHeaders:  []string{"Origin", "Content-Type", "Set-Cookie"},
 		ExposeHeaders: []string{"Content-Length", "Content-Type", "Set-Cookie", "Access-Control-Allow-Credentials", "Access-Control-Expose-Headers", "Access-Control-Allow-Origin", "set-cookie"},
 
@@ -66,6 +66,7 @@ func privateRoutes(g *gin.RouterGroup) {
 	g.POST("/:roomname/add-device", addDevice)
 	g.GET("/:roomname/devices", showDevices)
 
+	g.DELETE("/:roomname/:ip/delete-device", deleteDevice)
 	g.POST("/:roomname/:ip/:toggle", toggleDevice)
 
 	g.GET("/:roomname/:ip/wled-config", getWledConfigs)

@@ -75,7 +75,11 @@ const (
 
 	updateDeviceStatus string = `UPDATE deviceStatus SET connected=?, on_state=? WHERE device_id=?`
 
-	deleteNewRoom string = `DELETE FROM rooms WHERE name='?'`
+	deleteRoom   string = `DELETE FROM rooms WHERE name=?`
+	deleteDevice string = `DELETE FROM deviceInfo WHERE ipaddr IN (
+		SELECT ipaddr FROM rooms JOIN deviceInfo ON rooms.room_id=deviceInfo.room_id WHERE rooms.name=? and deviceInfo.ipaddr=?
+		)
+	`
 )
 
 func InitDatabase() *sql.DB {
@@ -165,12 +169,24 @@ func (s *DatabaseManager) AddRoom(room models.RoomInfo) error {
 }
 
 func (s *DatabaseManager) DelRoom(roomname string) {
-	_, err := s.Db.Exec(deleteNewRoom, roomname)
+	_, err := s.Db.Exec(deleteRoom, roomname)
 
 	if err != nil {
 		log.Println("error deleting entry into table")
 		log.Println(err)
 	}
+}
+
+func (s *DatabaseManager) DelDevice(roomname string, ipAddr string) error {
+	_, err := s.Db.Exec(deleteDevice, roomname, ipAddr)
+
+	if err != nil {
+		log.Println("error deleting entry into table")
+		log.Println(err)
+		return err
+	}
+
+	return nil
 }
 
 func (s *DatabaseManager) AddDevice(dev models.RegisteredDevice, devStatus models.DeviceStatus, roomName string) error {

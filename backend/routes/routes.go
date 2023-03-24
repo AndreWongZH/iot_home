@@ -230,6 +230,19 @@ func addDevice(ctx *gin.Context) {
 	sendResultJson(ctx, true, nil, nil, http.StatusOK)
 }
 
+func deleteDevice(ctx *gin.Context) {
+	roomName := ctx.Param("roomname")
+	ipAddr := ctx.Param("ip")
+
+	err := database.Dbman.DelDevice(roomName, ipAddr)
+	if err != nil {
+		sendResultJson(ctx, false, err, nil, http.StatusInternalServerError)
+		return
+	}
+
+	sendResultJson(ctx, true, nil, nil, http.StatusOK)
+}
+
 func showDevices(ctx *gin.Context) {
 	roomName := ctx.Param("roomname")
 
