@@ -6,6 +6,7 @@ import (
 	"io"
 	"log"
 	"net"
+	"net/http"
 	"os/exec"
 	"regexp"
 
@@ -21,7 +22,30 @@ type Nmap struct {
 // A gin route that respond http with a list of ip addresses
 func DiscoverNetworkDevices(ctx *gin.Context) {
 	// scan for network devices
-	// using ssdp
+	nmap, err := initNmap()
+	if err != nil {
+		log.Println(err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+	}
+
+	ipList, err := nmap.findAllDevices()
+	if err != nil {
+		log.Println(err)
+		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
+			"success": false,
+			"error":   err.Error(),
+		})
+	}
+
+	fmt.Println(ipList)
+
+	ctx.JSON(http.StatusOK, gin.H{
+		"success": true,
+		"data":    ipList,
+	})
 }
 
 func initNmap() (*Nmap, error) {
