@@ -9,6 +9,8 @@ if (process.env.API_ENDPOINT_URL) {
 }
 const port = "3001"
 
+export const discoverEP = `${baseUrl}${port}/discover`
+
 export const loginEP = `${baseUrl}${port}/login`
 export const registerEP = `${baseUrl}${port}/register`
 export const logoutEP = `${baseUrl}${port}/logout`
