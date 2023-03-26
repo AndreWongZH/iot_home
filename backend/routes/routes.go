@@ -60,8 +60,30 @@ func getServerStatus(ctx *gin.Context) {
 	})
 }
 
+func setAuthCookie(session sessions.Session, username string) error {
+	user := session.Get(globals.UserKey)
+	if user != nil {
+		return errors.New("user already logged in")
+	}
+
+	session.Set(globals.UserKey, username)
+	if err := session.Save(); err != nil {
+		return errors.New("unable to set session cookies")
+	}
+
+	return nil
+}
+
 func registerPost(ctx *gin.Context) {
 	var userCreds models.UserCreds
+
+	session := sessions.Default(ctx)
+	user := session.Get(globals.UserKey)
+	if user != nil {
+		fmt.Println(user)
+		sendResultJson(ctx, false, errors.New("user already logged in"), nil, http.StatusBadRequest)
+		return
+	}
 
 	err := ctx.BindJSON(&userCreds)
 	if err != nil {
@@ -80,6 +102,12 @@ func registerPost(ctx *gin.Context) {
 
 	// save to database
 	err = database.Dbman.AddUser(userCreds.Username, string(hash))
+	if err != nil {
+		sendResultJson(ctx, false, err, nil, http.StatusInternalServerError)
+		return
+	}
+
+	err = setAuthCookie(session, userCreds.Username)
 	if err != nil {
 		sendResultJson(ctx, false, err, nil, http.StatusInternalServerError)
 		return
@@ -120,15 +148,11 @@ func loginPost(ctx *gin.Context) {
 		return
 	}
 
-	session.Set(globals.UserKey, userCreds.Username)
-	if err := session.Save(); err != nil {
-		log.Println(err)
+	err = setAuthCookie(session, userCreds.Username)
+	if err != nil {
 		sendResultJson(ctx, false, err, nil, http.StatusInternalServerError)
 		return
 	}
-
-	user = session.Get(globals.UserKey)
-	fmt.Println(user)
 
 	sendResultJson(ctx, true, nil, nil, http.StatusOK)
 }
