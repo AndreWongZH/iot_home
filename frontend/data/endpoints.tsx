@@ -1,12 +1,19 @@
 
 let baseUrl: string
-if (process.env.API_ENDPOINT_URL) {
-    console.log("you are running on: ")
-    console.log(process.env.API_ENDPOINT_URL)
-    baseUrl = process.env.API_ENDPOINT_URL
+let wsBaseURL: string
+let LOCALIP: string
+if (process.env.LOCALIP) {
+    LOCALIP = process.env.LOCALIP
+    baseUrl = "http://"+LOCALIP+":"
+    wsBaseURL = "ws://"+LOCALIP+":"
+    console.log("running backend ip at: ")
+    console.log(LOCALIP)
 } else {
+    console.log("using backend localhost")
     baseUrl = "http://localhost:"
+    wsBaseURL = "ws://localhost:"
 }
+
 const port = "3001"
 
 export const discoverEP = `${baseUrl}${port}/discover`
@@ -37,4 +44,4 @@ export const wledConfigEP = (roomName: string, ip: string) => {
     return `${baseUrl}${port}/${roomName}/${ip}/wled-config`
 }
 
-export const websocketEP = `ws://localhost:${port}/ws`
+export const websocketEP = `${wsBaseURL}${port}/ws`

@@ -1,1 +1,1 @@
-docker run -p 3000:3000 iot-frontend:latest
+docker run -p 3000:3000 -e LOCALIP="192.168.1.221" iot-frontend:latest 
