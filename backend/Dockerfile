@@ -2,6 +2,9 @@ FROM golang:latest
 
 WORKDIR /backend
 
+RUN apt-get update
+RUN apt-get install nmap -y
+
 COPY go.mod go.sum ./
 RUN go mod download && go mod verify
 
