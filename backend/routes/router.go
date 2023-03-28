@@ -66,6 +66,7 @@ func privateRoutes(g *gin.RouterGroup) {
 	g.POST("/:roomname/add-device", addDevice)
 	g.GET("/:roomname/devices", showDevices)
 
+	g.GET("/:roomname/:ip", getDeviceInfo)
 	g.DELETE("/:roomname/:ip/delete-device", deleteDevice)
 	g.POST("/:roomname/:ip/:toggle", toggleDevice)
 

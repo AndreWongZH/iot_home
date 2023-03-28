@@ -292,6 +292,19 @@ func showDevices(ctx *gin.Context) {
 	}, http.StatusOK)
 }
 
+func getDeviceInfo(ctx *gin.Context) {
+	roomName := ctx.Param("roomname")
+	ipAddr := ctx.Param("ip")
+
+	_, devInfo, _, err := database.Dbman.GetDevice(roomName, ipAddr)
+	if err != nil {
+		sendResultJson(ctx, false, err, nil, http.StatusInternalServerError)
+		return
+	}
+
+	sendResultJson(ctx, true, nil, devInfo, http.StatusOK)
+}
+
 func toggleDevice(ctx *gin.Context) {
 	roomName := ctx.Param("roomname")
 	ipAddr := ctx.Param("ip")

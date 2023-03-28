@@ -244,6 +244,8 @@ func (s *DatabaseManager) GetDevice(roomName string, ipAddr string) (int, models
 		return device_id, devInfo, devStatus, err
 	}
 
+	devInfo.Ipaddr = ipAddr
+
 	return device_id, devInfo, devStatus, nil
 }
 
