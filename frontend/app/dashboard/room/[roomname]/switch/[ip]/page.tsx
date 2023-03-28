@@ -1,13 +1,11 @@
 import { DeviceInfo } from "@/components/devInfo";
 import { BackHeader } from "@/components/header";
-import { InputsHandler } from "./inputshandler";
 
 export default function Page({ params } : { params: {roomname: string, ip: string} }) {
   return (
     <div className="w-full">
-      <BackHeader headerText="wled config"/>
-      <DeviceInfo roomName={params.roomname} ip={params.ip}/>
-      <InputsHandler roomName={params.roomname} ip={params.ip} />
+      <BackHeader headerText="switch config"/>
+      <DeviceInfo roomName={params.roomname} ip={params.ip} />
     </div>
   )
 }

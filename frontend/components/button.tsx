@@ -97,6 +97,10 @@ export const Device = ({ name, devStatus, type, roomName, ip, setMode }: DeviceA
       router.push(`/dashboard/room/${roomName}/wled/${ip}`)
     }
 
+    if (type == "switch") {
+      router.push(`/dashboard/room/${roomName}/switch/${ip}`)
+    }
+
     return
   }
 
