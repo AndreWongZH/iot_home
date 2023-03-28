@@ -221,6 +221,18 @@ func getRooms(ctx *gin.Context) {
 	sendResultJson(ctx, true, nil, rooms, http.StatusOK)
 }
 
+func deleteRoom(ctx *gin.Context) {
+	roomName := ctx.Param("roomname")
+
+	err := database.Dbman.DelRoom(roomName)
+	if err != nil {
+		sendResultJson(ctx, false, nil, nil, http.StatusInternalServerError)
+		return
+	}
+
+	sendResultJson(ctx, true, nil, nil, http.StatusOK)
+}
+
 func addDevice(ctx *gin.Context) {
 	var registeredDevice models.RegisteredDevice
 

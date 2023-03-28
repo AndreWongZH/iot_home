@@ -16,7 +16,7 @@ const (
 	createRooms string = `
 		CREATE TABLE IF NOT EXISTS rooms (
 			room_id INTEGER NOT NULL PRIMARY KEY AUTOINCREMENT,
-			name TEXT
+			name TEXT NOT NULL UNIQUE
 		)
 	`
 
@@ -168,13 +168,16 @@ func (s *DatabaseManager) AddRoom(room models.RoomInfo) error {
 	return nil
 }
 
-func (s *DatabaseManager) DelRoom(roomname string) {
+func (s *DatabaseManager) DelRoom(roomname string) error {
 	_, err := s.Db.Exec(deleteRoom, roomname)
 
 	if err != nil {
 		log.Println("error deleting entry into table")
 		log.Println(err)
+		return err
 	}
+
+	return nil
 }
 
 func (s *DatabaseManager) DelDevice(roomname string, ipAddr string) error {
