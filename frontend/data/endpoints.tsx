@@ -25,6 +25,9 @@ export const userEP = `${baseUrl}${port}/user`
 
 export const roomsEP = `${baseUrl}${port}/rooms`
 export const createRoomEP = `${baseUrl}${port}/create-room`
+export const deleteRoomEP = (roomName: string) => {
+    return `${baseUrl}${port}/delete-room/${roomName}`
+}
 
 export const addDeviceEP = (roomName: string) => {
     return `${baseUrl}${port}/${roomName}/add-device`

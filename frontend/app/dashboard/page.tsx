@@ -1,16 +1,22 @@
 "use client"
 
-import Link from 'next/link';
 import { AddButton } from '@/components/button';
 import { LinkHeader } from './linkheader';
 import { useEffect, useState } from 'react';
 import Loading from './loading';
-import { roomsEP } from '@/data/endpoints';
+import { deleteRoomEP, roomsEP } from '@/data/endpoints';
+import { Toggle } from '@/components/toggle';
+import { useRouter } from 'next/navigation';
+import { Confirm } from 'notiflix';
 
-const RoomTile = ({name, count} :{ name: string, count: number }) => {
+const RoomTile = ({name, count, onClick} :{ name: string, count: number, onClick: Function }) => {
+
   return (
-    <button className="relative h-28 text-center flex flex-col items-center justify-center rounded-lg hover:bg-roomtile-highlight">
-      <Link className="z-20 absolute h-28 w-full" href={`/dashboard/room/${name}`}></Link>
+    <button
+      className="relative h-28 text-center flex flex-col items-center justify-center rounded-lg hover:bg-roomtile-highlight"
+      onClick={() => onClick(name)}
+    >
+      {/* <Link className="z-20 absolute h-28 w-full" href={`/dashboard/room/${name}`}></Link> */}
       <div className="absolute flex flex-col items-center justify-center z-10">
         <h1 className="text-white font-bold capitalize text-2xl">{name}</h1>
         <p className="text-white font-bold capitalize text-xs">{count} devices connected</p>
@@ -40,9 +46,42 @@ interface RegisteredDevice {
 }
 
 export default function Page() {
+  const router = useRouter()
+
   const [data, setData] = useState([])
   const [loading, setLoading] = useState(true)
   const [error, setError] = useState("")
+  const [deleteMode, setDeleteMode] = useState(false)
+
+  const tileOnClick = (roomName:string) => {
+    if (deleteMode) {
+      // delete room
+      Confirm.show("Delete room",
+      `Do you really want to delete ${roomName}?`,
+      "Yes", "No",
+      () => { 
+        fetch(deleteRoomEP(roomName), {
+          method: "DELETE",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          credentials: "include",
+        })
+          .then((resp) => resp.json())
+          .then(({ success, error }) => {
+            if (success) {
+              getRoomData()
+            }
+          })
+      },
+      () => { })
+
+      return
+    }
+
+    // navigate to devices page
+    router.push(`/dashboard/room/${roomName}`)
+  }
 
   useEffect(() => {
     getRoomData()
@@ -71,13 +110,14 @@ export default function Page() {
         loading ? <Loading /> :
       
         (<>
-          <LinkHeader headerText={"IOT Home"} href={`/dashboard/addroom`} showHome={false}>
+          <LinkHeader headerText={"IOT Home"} href={`/dashboard/addroom`} showHome={false} disableMargin>
             <AddButton onClick={null}/>
           </LinkHeader>
+          <Toggle toggleOffText={''} toggleOnText={"delete"} setMode={deleteMode} setSetMode={setDeleteMode}/>
           <div className="flex flex-col gap-5 px-4">
             {
             data.map(({name, count}) => { 
-              return <RoomTile key={name} name={name} count={count} />
+              return <RoomTile key={name} name={name} count={count} onClick={tileOnClick}/>
               })
             }
           </div>

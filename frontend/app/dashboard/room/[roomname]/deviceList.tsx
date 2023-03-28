@@ -26,7 +26,7 @@ export const DeviceList = ({ data, roomName }: {data: RoomDevicesData, roomName:
 
   return (
     <>
-      <Toggle setMode={setMode} setSetMode={setSetMode} />
+      <Toggle setMode={setMode} setSetMode={setSetMode} toggleOffText={"Switch"} toggleOnText={"Settings"} />
 
 
       <div className="flex flex-wrap gap-5 justify-center">
