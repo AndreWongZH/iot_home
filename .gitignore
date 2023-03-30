@@ -8,5 +8,7 @@
 
 **/node_modules
 
+**/.env.local
+
 # ignore tmp files
 **/tmp/*
