@@ -4,13 +4,12 @@ WORKDIR /frontend
 
 COPY . /frontend/
 
-RUN yarn
-
-RUN yarn build
-
-ENV API_ENDPOINT_URL http://localhost:
 ENV PORT 3000
+
+RUN yarn
 
 EXPOSE ${PORT}
 
-CMD ["yarn", "start"]
+RUN chmod +777 start.sh
+
+CMD ["./start.sh"]

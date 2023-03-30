@@ -2,8 +2,9 @@
 let baseUrl: string
 let wsBaseURL: string
 let LOCALIP: string
-if (process.env.LOCALIP) {
-    LOCALIP = process.env.LOCALIP
+
+if (process.env.NEXT_PUBLIC_LOCALIP) {
+    LOCALIP = process.env.NEXT_PUBLIC_LOCALIP
     baseUrl = "http://"+LOCALIP+":"
     wsBaseURL = "ws://"+LOCALIP+":"
     console.log("running backend ip at: ")

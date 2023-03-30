@@ -23,11 +23,11 @@ class SocketService {
     };
   
     this.client.onopen = function() {
-        console.log('WebSocket Client Connected');
+      console.log('WebSocket Client Connected');
     };
   
     this.client.onclose = function() {
-        console.log('echo-protocol Client Closed');
+      console.log('echo-protocol Client Closed');
     };
   }
 

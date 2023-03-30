@@ -24,6 +24,7 @@ export default function Page({ params }: { params: {roomname: string;}}) {
     let soc = getSocketInstance()
     soc.client.onmessage = function(e: any) {
       let websocketMsg = JSON.parse(e.data)
+      console.log(websocketMsg)
       if (websocketMsg.roomname == params.roomname) {
         setData((prev) => {
           return {
