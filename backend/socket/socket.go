@@ -47,23 +47,21 @@ func WebsocketHandler(ctx *gin.Context) {
 	defer conn.Close()
 	connectedSockets = append(connectedSockets, conn)
 
-	// doesnt listen to ws from client side
-
-	// type Data struct {
-	// 	Success string `json:"success"`
-	// }
-	// var datapacket Data
-	// for {
-	// 	// messageType, p, err := conn.ReadJSON(&datapacket)
-	// 	err := conn.ReadJSON(&datapacket)
-	// 	if err != nil {
-	// 		fmt.Println(err)
-	// 		return
-	// 	}
-	// 	// fmt.Println("message type: ", messageType)
-	// 	// fmt.Println("data: ", p)
-	// 	fmt.Println("data: ", datapacket.Success)
-	// }
+	type Data struct {
+		Success string `json:"success"`
+	}
+	var datapacket Data
+	for {
+		// messageType, p, err := conn.ReadJSON(&datapacket)
+		err := conn.ReadJSON(&datapacket)
+		if err != nil {
+			fmt.Println(err)
+			return
+		}
+		// fmt.Println("message type: ", messageType)
+		// fmt.Println("data: ", p)
+		fmt.Println("data: ", datapacket.Success)
+	}
 }
 
 func BroadcastMsg(data interface{}) {
