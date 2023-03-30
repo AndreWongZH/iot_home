@@ -2,6 +2,7 @@ package routes
 
 import (
 	"errors"
+	"fmt"
 	"net/http"
 	"time"
 
@@ -14,11 +15,11 @@ import (
 	"github.com/gin-gonic/gin"
 )
 
-func InitRouter() *gin.Engine {
+func InitRouter(origin string) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:  []string{"http://localhost:3000"},
+		AllowOrigins:  []string{fmt.Sprintf("http://%s:3000", origin)},
 		AllowMethods:  []string{"POST", "GET", "PUT", "OPTIONS", "DELETE"},
 		AllowHeaders:  []string{"Origin", "Content-Type", "Set-Cookie"},
 		ExposeHeaders: []string{"Content-Length", "Content-Type", "Set-Cookie", "Access-Control-Allow-Credentials", "Access-Control-Expose-Headers", "Access-Control-Allow-Origin", "set-cookie"},

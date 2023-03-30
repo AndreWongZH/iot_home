@@ -11,14 +11,19 @@ import (
 
 func main() {
 	port := os.Getenv("PORT")
+	ipAddr := os.Getenv("ORIGIN")
 	if port == "" {
 		port = "3001"
 	}
+	if ipAddr == "" {
+		ipAddr = "localhost"
+	}
+	fmt.Println("origin used: ", ipAddr)
 
 	db := database.InitDatabase()
 	database.InitializeGlobals(db)
 
-	r := routes.InitRouter()
+	r := routes.InitRouter(ipAddr)
 
 	exit := make(chan bool)
 	go device.QueryAllDevices(exit)
