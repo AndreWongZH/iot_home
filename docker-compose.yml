@@ -1,0 +1,18 @@
+version: '3.0'
+services:
+  frontend:
+    image: andrewongzh/iot-frontend:1.0
+    container_name: "frontend"
+    ports:
+      - 3000:3000
+    environment:
+      - NEXT_PUBLIC_LOCALIP="192.168.1.253"
+  backend:
+    image: andrewongzh/iot-backend:1.0
+    container_name: "backend"
+    environment:
+      - ORIGIN="192.168.1.253"
+    network_mode: "host"
+    volumes:
+      - .:/backend
+  
