@@ -50,9 +50,18 @@ export const DeviceInfo = ({ roomName, ip }: { roomName: string, ip: string }) =
 
         (
           <div className="w-4/5 mx-auto py-8">
-            <h1 className="font-bold text-xl text-slate-600">name: {deviceInfo.name}</h1>
-            <h1 className="font-bold text-xl text-slate-600">ip address: {deviceInfo.ipaddr}</h1>
-            <h1 className="font-bold text-xl text-slate-600">device type: {deviceInfo.type}</h1>
+            <div className="flex flex-row justify-between mb-2">
+              <h1 className="font-bold text-xl text-slate-600">Name:</h1>
+              <h1 className="font-bold text-xl text-slate-600">{deviceInfo.name}</h1>
+            </div>
+            <div className="flex flex-row justify-between mb-2">
+              <h1 className="font-bold text-xl text-slate-600">Ip Address:</h1>
+              <h1 className="font-bold text-xl text-slate-600">{deviceInfo.ipaddr}</h1>
+            </div>
+            <div className="flex flex-row justify-between mb-2">
+              <h1 className="font-bold text-xl text-slate-600">Device Type:</h1>
+              <h1 className="font-bold text-xl text-slate-600">{deviceInfo.type}</h1>
+            </div>
           </div>
         )
       }

@@ -148,11 +148,13 @@ export const DeleteDevice = ({ roomName, ip }: { roomName: string , ip: string }
   }
 
   return (
-    <button
-      className="w-full hover:shadow-lg rounded-md bg-red-600 py-3 mt-12 text-center text-base font-semibold text-white outline-none"
-      onClick={() => { deleteDevice() }}
-    >
-      Delete device
-    </button>
+    <div className='w-3/4 mx-auto'>
+      <button
+        className="w-full hover:shadow-lg rounded-md bg-red-600 py-3 mt-12 text-center text-base font-semibold text-white outline-none"
+        onClick={() => { deleteDevice() }}
+      >
+        Delete device
+      </button>
+    </div>
   )
 }

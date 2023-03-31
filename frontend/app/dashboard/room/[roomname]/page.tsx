@@ -61,7 +61,7 @@ export default function Page({ params }: { params: {roomname: string;}}) {
 
   return (
     <>
-      <LinkHeader disableMargin={true} showHome={true} href={`/dashboard/room/${params.roomname}/adddevice`}>
+      <LinkHeader disableMargin={true} showHome={false} href={`/dashboard/room/${params.roomname}/adddevice`}>
         <AddButton onClick={null}/>
       </LinkHeader>
 

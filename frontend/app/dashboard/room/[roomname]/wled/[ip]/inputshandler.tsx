@@ -161,8 +161,6 @@ export const InputsHandler = ({ roomName, ip }: { roomName: string, ip: string }
             >
               Change
             </button>
-
-            <DeleteDevice roomName={roomName} ip={ip} />
           </div>
         </>)
       }
