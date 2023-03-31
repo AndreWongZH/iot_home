@@ -1,7 +1,6 @@
 package main
 
 import (
-	"fmt"
 	"os"
 
 	"github.com/AndreWongZH/iothome/database"
@@ -10,23 +9,29 @@ import (
 	"github.com/AndreWongZH/iothome/routes"
 )
 
-func main() {
-	logger.InitLogger()
-
+func getEnvVar() (string, string) {
 	port := os.Getenv("PORT")
-	ipAddr := os.Getenv("ORIGIN")
+	origin := os.Getenv("ORIGIN")
 	if port == "" {
 		port = "3001"
 	}
-	if ipAddr == "" {
-		ipAddr = "localhost"
+	if origin == "" {
+		origin = "localhost:3000"
 	}
-	fmt.Println("origin used: ", ipAddr)
+
+	logger.SugarLog.Info("origin used: ", origin)
+	return origin, port
+}
+
+func main() {
+	logger.InitLogger()
+
+	origin, port := getEnvVar()
 
 	db := database.InitDatabase()
 	database.InitializeGlobals(db)
 
-	r := routes.InitRouter(ipAddr)
+	r := routes.InitRouter(origin)
 
 	exit := make(chan bool)
 	go device.QueryAllDevices(exit)

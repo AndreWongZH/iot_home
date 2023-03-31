@@ -19,7 +19,7 @@ func InitRouter(origin string) *gin.Engine {
 	r := gin.Default()
 
 	r.Use(cors.New(cors.Config{
-		AllowOrigins:  []string{fmt.Sprintf("http://%s:3000", origin)},
+		AllowOrigins:  []string{fmt.Sprintf("http://%s", origin)},
 		AllowMethods:  []string{"POST", "GET", "PUT", "OPTIONS", "DELETE"},
 		AllowHeaders:  []string{"Origin", "Content-Type", "Set-Cookie"},
 		ExposeHeaders: []string{"Content-Length", "Content-Type", "Set-Cookie", "Access-Control-Allow-Credentials", "Access-Control-Expose-Headers", "Access-Control-Allow-Origin", "set-cookie"},
