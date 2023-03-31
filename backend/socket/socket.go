@@ -2,9 +2,9 @@ package socket
 
 import (
 	"fmt"
-	"log"
 	"net/http"
 
+	"github.com/AndreWongZH/iothome/logger"
 	"github.com/AndreWongZH/iothome/models"
 	"github.com/gin-gonic/gin"
 	"github.com/gorilla/websocket"
@@ -28,7 +28,8 @@ var connectedSockets []*websocket.Conn
 func WebsocketHandler(ctx *gin.Context) {
 	conn, err := upgrader.Upgrade(ctx.Writer, ctx.Request, nil)
 	if err != nil {
-		log.Println("failed to upgrade to websockets")
+		logger.SugarLog.Errorw(err.Error(), "location", "socket", "extra", "failed to upgrade to websockets")
+		return
 	}
 
 	// if ws conn is closed, remove from our array of connectedSockets
@@ -39,11 +40,9 @@ func WebsocketHandler(ctx *gin.Context) {
 				break
 			}
 		}
-		fmt.Println("websocket is closed")
 		return nil
 	})
 
-	fmt.Println("client is connected")
 	defer conn.Close()
 	connectedSockets = append(connectedSockets, conn)
 

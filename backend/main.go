@@ -6,10 +6,13 @@ import (
 
 	"github.com/AndreWongZH/iothome/database"
 	"github.com/AndreWongZH/iothome/device"
+	"github.com/AndreWongZH/iothome/logger"
 	"github.com/AndreWongZH/iothome/routes"
 )
 
 func main() {
+	logger.InitLogger()
+
 	port := os.Getenv("PORT")
 	ipAddr := os.Getenv("ORIGIN")
 	if port == "" {
@@ -28,7 +31,7 @@ func main() {
 	exit := make(chan bool)
 	go device.QueryAllDevices(exit)
 
-	fmt.Println("Starting server on port", port)
+	logger.SugarLog.Info("Starting server on port: ", port)
 	r.Run(":" + port)
 
 	defer cleanup(exit)

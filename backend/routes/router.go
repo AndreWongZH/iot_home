@@ -47,8 +47,6 @@ func InitRouter(origin string) *gin.Engine {
 
 	private.GET("/ws", socket.WebsocketHandler)
 
-	// r.GET("/discover", discoverNetworkDevices)
-
 	return r
 }
 

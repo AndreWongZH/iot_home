@@ -10,6 +10,7 @@ import (
 	"os/exec"
 	"regexp"
 
+	"github.com/AndreWongZH/iothome/logger"
 	"github.com/gin-gonic/gin"
 )
 
@@ -59,15 +60,15 @@ func initNmap() (*Nmap, error) {
 
 	path, err := exec.LookPath("nmap")
 	if err != nil {
-		fmt.Println("error finding path to nmap")
-		fmt.Println("is nmap installed?")
-		return nil, errors.New("error finding path to nmap")
+		logger.SugarLog.Errorw(err.Error(), "location", "nmap", "extra", "cannot find path to nmap")
+		return nil, err
 	}
 
-	fmt.Println(path)
 	nmap.execPath = path
 
 	nmap.command = exec.Command(nmap.execPath, "-sn", nmap.ipAddr)
+
+	logger.SugarLog.Info("nmap initialized")
 
 	return &nmap, nil
 }
@@ -75,27 +76,29 @@ func initNmap() (*Nmap, error) {
 func (nmap *Nmap) findAllDevices() ([]string, error) {
 	stdout, err := nmap.command.StdoutPipe()
 	if err != nil {
-		return nil, errors.New("unable to execute command")
+		logger.SugarLog.Errorw(err.Error(), "location", "nmap", "extra", "unable to execute command")
+		return nil, err
 	}
 
 	if err := nmap.command.Start(); err != nil {
-		log.Fatal(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "nmap", "extra", "nmap command cannot start")
 		return nil, err
 	}
 
 	b, err := io.ReadAll(stdout)
 	if err != nil {
-		log.Fatal(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "nmap", "extra", "unable to read stdout")
 		return nil, err
 	}
 
 	if err := nmap.command.Wait(); err != nil {
-		log.Fatal(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "nmap", "extra", "unable to execute command")
 		return nil, err
 	}
 
 	ipList, err := parseOutput(string(b))
 	if err != nil {
+		logger.SugarLog.Errorw(err.Error(), "location", "nmap", "extra", "unable to parse stdout")
 		return nil, err
 	}
 
@@ -110,13 +113,15 @@ func parseOutput(stdout string) ([]string, error) {
 
 	ipRegex, err := regexp.Compile(`[0-9]*\.[0-9]*\.[0-9]*\.[0-9]*`)
 	if err != nil {
-		return nil, errors.New("compile regex error")
+		logger.SugarLog.Errorw(err.Error(), "location", "nmap", "extra", "unable to compile regex")
+		return nil, err
 	}
 
 	// stringList := regex.FindAllString(stdout, -1)
 	ipList := ipRegex.FindAllString(stdout, -1)
 	if ipList == nil {
-		return nil, errors.New("no ip address found")
+		logger.SugarLog.Errorw(err.Error(), "location", "nmap", "extra", "no ip address found")
+		return nil, err
 	}
 
 	return ipList, nil
@@ -129,7 +134,8 @@ func getLocalIpAddr() (string, error) {
 
 	addrs, err := net.InterfaceAddrs()
 	if err != nil {
-		return "", errors.New("error acquiring ip addresses")
+		logger.SugarLog.Errorw(err.Error(), "location", "nmap", "extra", "unable to get interface address")
+		return "", err
 	}
 
 	for _, addr := range addrs {
@@ -141,12 +147,14 @@ func getLocalIpAddr() (string, error) {
 	}
 
 	if len(ipList) == 0 {
+		logger.SugarLog.Errorw(err.Error(), "location", "nmap", "extra", "no interface address")
 		return "", errors.New("ipList is empty")
 	}
 
 	if len(ipList) > 1 {
 		log.Println("multiple ip address detected")
 		log.Println("using: ", ipList[0].String())
+		logger.SugarLog.Warn("multiple ip address detected, using:", ipList[0].String())
 	}
 
 	return ipList[0].String(), nil

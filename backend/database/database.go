@@ -3,9 +3,8 @@ package database
 import (
 	"database/sql"
 	"errors"
-	"fmt"
-	"log"
 
+	"github.com/AndreWongZH/iothome/logger"
 	"github.com/AndreWongZH/iothome/models"
 	_ "github.com/mattn/go-sqlite3"
 )
@@ -85,32 +84,30 @@ const (
 func InitDatabase() *sql.DB {
 	db, err := sql.Open("sqlite3", databaseFilePath)
 	if err != nil {
-		log.Println("Failed to open sqlite3 database")
+		logger.SugarLog.Errorw(err.Error(), "location", "database")
 	}
 
 	if _, err := db.Exec("PRAGMA foreign_keys = 1"); err != nil {
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database")
 	}
 
 	if _, err := db.Exec(createRooms); err != nil {
-		log.Println("Failed to create new rooms table")
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "failed to create new rooms table")
 	}
 
 	if _, err := db.Exec(createDevInfo); err != nil {
-		log.Println("Failed to create new devinfo table")
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "failed to create new devinfo table")
 	}
 
 	if _, err := db.Exec(createDevStatus); err != nil {
-		log.Println("Failed to create new devstatus table")
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "failed to create new devstatus table")
 	}
 
 	if _, err := db.Exec(createUsers); err != nil {
-		log.Println("Failed to create new users table")
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "failed to create new users table")
 	}
+
+	logger.SugarLog.Info("database initialized")
 
 	return db
 }
@@ -134,8 +131,7 @@ func (s *DatabaseManager) AddUser(username string, hash string) error {
 
 		_, err := s.Db.Exec(insertUser, username, hash)
 		if err != nil {
-			log.Println("error inserting entry into table")
-			log.Println(err)
+			logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "add user query failed")
 			return err
 		}
 
@@ -160,8 +156,7 @@ func (s *DatabaseManager) AddRoom(room models.RoomInfo) error {
 	_, err := s.Db.Exec(insertNewRoom, room.Name)
 
 	if err != nil {
-		log.Println("error inserting entry into table")
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "insertNewRoom query failed")
 		return err
 	}
 
@@ -172,8 +167,7 @@ func (s *DatabaseManager) DelRoom(roomname string) error {
 	_, err := s.Db.Exec(deleteRoom, roomname)
 
 	if err != nil {
-		log.Println("error deleting entry into table")
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "deleteRoom query failed")
 		return err
 	}
 
@@ -184,8 +178,7 @@ func (s *DatabaseManager) DelDevice(roomname string, ipAddr string) error {
 	_, err := s.Db.Exec(deleteDevice, roomname, ipAddr)
 
 	if err != nil {
-		log.Println("error deleting entry into table")
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "deleteDevice query failed")
 		return err
 	}
 
@@ -195,16 +188,18 @@ func (s *DatabaseManager) DelDevice(roomname string, ipAddr string) error {
 func (s *DatabaseManager) AddDevice(dev models.RegisteredDevice, devStatus models.DeviceStatus, roomName string) error {
 	row := s.Db.QueryRow(getRoomId, roomName)
 	var roomId int
-	if err := row.Scan(&roomId); err == sql.ErrNoRows {
-		log.Println("room_id not found")
+	err := row.Scan(&roomId)
+	if err == sql.ErrNoRows {
+		return err
+	} else if err != nil {
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "getRoomId query failed")
 		return err
 	}
 
 	res, err := s.Db.Exec(insertNewDevInfo, roomId, dev.Name, dev.Ipaddr, dev.Type)
 
 	if err != nil {
-		log.Println("error inserting entry into deviceInfo table")
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "inserting entry into deviceInfo table")
 		return err
 	}
 
@@ -214,8 +209,7 @@ func (s *DatabaseManager) AddDevice(dev models.RegisteredDevice, devStatus model
 	_, err = s.Db.Exec(insertNewDevStatus, devId, devStatus.Connected, devStatus.On_state)
 
 	if err != nil {
-		log.Println("error inserting entry into deviceStatus table")
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "inserting entry into deviceStatus table")
 		return err
 	}
 
@@ -225,7 +219,6 @@ func (s *DatabaseManager) AddDevice(dev models.RegisteredDevice, devStatus model
 func (s *DatabaseManager) UpdateDevStatus(roomName string, ipAddr string, devStatus models.DeviceStatus) error {
 	device_id, _, _, err := Dbman.GetDevice(roomName, ipAddr)
 	if err != nil {
-		log.Println("failed to get device id")
 		return err
 	}
 
@@ -243,7 +236,11 @@ func (s *DatabaseManager) GetDevice(roomName string, ipAddr string) (int, models
 	devInfo := models.RegisteredDevice{}
 	devStatus := models.DeviceStatus{}
 	var device_id int
-	if err := row.Scan(&device_id, &devInfo.Name, &devInfo.Type, &devStatus.Connected, &devStatus.On_state); err == sql.ErrNoRows {
+	err := row.Scan(&device_id, &devInfo.Name, &devInfo.Type, &devStatus.Connected, &devStatus.On_state)
+	if err == sql.ErrNoRows {
+		return device_id, devInfo, devStatus, err
+	} else if err != nil {
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "failed to scan db rows")
 		return device_id, devInfo, devStatus, err
 	}
 
@@ -255,8 +252,7 @@ func (s *DatabaseManager) GetDevice(roomName string, ipAddr string) (int, models
 func (s *DatabaseManager) GetDevices(roomName string) ([]models.RegisteredDevice, map[string]models.DeviceStatus, error) {
 	rows, err := s.Db.Query(getDeviceInfoByRoom, roomName)
 	if err != nil {
-		log.Println("error getting entrys from table")
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "getDeviceInfoByRoom query failed")
 		return nil, nil, err
 	}
 	defer rows.Close()
@@ -268,7 +264,7 @@ func (s *DatabaseManager) GetDevices(roomName string) ([]models.RegisteredDevice
 		ds := models.DeviceStatus{}
 		err = rows.Scan(&rd.Name, &rd.Ipaddr, &rd.Type, &ds.Connected, &ds.On_state)
 		if err != nil {
-			log.Println("failed to scan db rows")
+			logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "failed to scan db rows")
 			return nil, nil, err
 		}
 
@@ -282,8 +278,7 @@ func (s *DatabaseManager) GetDevices(roomName string) ([]models.RegisteredDevice
 func (s *DatabaseManager) GetRooms() ([]models.RoomInfo, error) {
 	rows, err := s.Db.Query(getRooms)
 	if err != nil {
-		log.Println("error getting entrys from table")
-		log.Println(err)
+		logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "getRooms query failed")
 		return nil, err
 	}
 	defer rows.Close()
@@ -294,7 +289,7 @@ func (s *DatabaseManager) GetRooms() ([]models.RoomInfo, error) {
 		ri := models.RoomInfo{}
 		err = rows.Scan(&ri.Name, &ri.Count)
 		if err != nil {
-			log.Println("failed to scan db rows")
+			logger.SugarLog.Errorw(err.Error(), "location", "database", "extra", "failed to scan db rows")
 			return nil, err
 		}
 
@@ -310,9 +305,11 @@ func (s *DatabaseManager) CheckRoomExist(roomName string) (bool, error) {
 	var nameCount int
 
 	if err := row.Scan(&nameCount); err == sql.ErrNoRows {
+		// room does not exist
 		return false, err
 	}
 
+	// room exists
 	if nameCount > 0 {
 		return true, nil
 	}
@@ -326,11 +323,11 @@ func (s *DatabaseManager) CheckIpExist(ipaddr string) (bool, error) {
 	var ipCount int
 
 	if err := row.Scan(&ipCount); err == sql.ErrNoRows {
+		// ip does not exist
 		return false, err
 	}
 
-	fmt.Println(ipCount)
-
+	// ip exists
 	if ipCount > 0 {
 		return true, nil
 	}
@@ -350,9 +347,11 @@ func (s *DatabaseManager) CheckIpExistInRoom(ipaddr string, roomName string) (bo
 	var ipCount int
 
 	if err := row.Scan(&ipCount); err == sql.ErrNoRows {
+		// ip does not exist
 		return false, err
 	}
 
+	// ip exists
 	if ipCount > 0 {
 		return true, nil
 	}

@@ -1,13 +1,13 @@
 package device
 
 import (
-	"fmt"
 	"log"
 	"time"
 
 	"github.com/AndreWongZH/iothome/database"
 	"github.com/AndreWongZH/iothome/device/tasmota"
 	"github.com/AndreWongZH/iothome/device/wled"
+	"github.com/AndreWongZH/iothome/logger"
 	"github.com/AndreWongZH/iothome/models"
 	"github.com/AndreWongZH/iothome/socket"
 )
@@ -52,19 +52,15 @@ func QueryRoomDevices(devList []models.RegisteredDevice, devStatuses map[string]
 // a go routine to check the connection of devices every 1 min
 func QueryAllDevices(exit chan bool) {
 	for {
-		fmt.Println("ping check for all devices")
+		logger.SugarLog.Info("go routine ping check for all connected devices")
 
-		roomList, err := database.Dbman.GetRooms()
-		if err != nil {
-			log.Println("Error getting room list")
-		}
-
-		for _, room := range roomList {
-			devList, devStatuses, err := database.Dbman.GetDevices(room.Name)
-			if err != nil {
-				log.Println("Error getting device list")
+		if roomList, err := database.Dbman.GetRooms(); err == nil {
+			for _, room := range roomList {
+				devList, devStatuses, err := database.Dbman.GetDevices(room.Name)
+				if err == nil {
+					QueryRoomDevices(devList, devStatuses, room.Name)
+				}
 			}
-			QueryRoomDevices(devList, devStatuses, room.Name)
 		}
 
 		select {
