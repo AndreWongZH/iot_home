@@ -99,20 +99,23 @@ export default function Page() {
       return resp.json()
     })
     .then(({ success, data }) => {
-      setData(data)
-      setLoading(false)
+      if (success) {
+        setData(data)
+        setLoading(false)
+      }
     })
   }
 
   return (
     <>
+      <LinkHeader headerText={"IOT Home"} href={`/dashboard/addroom`} showHome={false} disableMargin>
+        <AddButton onClick={null}/>
+      </LinkHeader>
       {
         loading ? <Loading /> :
       
         (<>
-          <LinkHeader headerText={"IOT Home"} href={`/dashboard/addroom`} showHome={false} disableMargin>
-            <AddButton onClick={null}/>
-          </LinkHeader>
+          
           <Toggle toggleOffText={''} toggleOnText={"delete"} setMode={deleteMode} setSetMode={setDeleteMode}/>
           <div className="flex flex-col gap-5 px-4">
             {

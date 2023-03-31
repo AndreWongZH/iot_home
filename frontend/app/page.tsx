@@ -1,8 +1,8 @@
 "use client"
 
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
-import { loginEP, registerEP } from "@/data/endpoints";
+import { loginEP, registerEP, userEP } from "@/data/endpoints";
 import { Notify } from "notiflix";
 import { Auth } from "./auth";
 
@@ -11,9 +11,26 @@ export default function Page() {
   const [username, setUsername] = useState("")
   const [password, setPassword] = useState("")
   const router = useRouter()
-  // if (document) {
-  //   console.log(document.cookie)
-  // }
+  
+  useEffect(() => {
+    getUsername()
+  }, [])
+
+  const getUsername = () => {
+    fetch(userEP, {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+      .then((resp) => resp.json())
+      .then(({ success }) => {
+        if (success) {
+          router.push("/dashboard")
+        }
+      })
+  }
 
   const tryLogin = async (e: React.SyntheticEvent) => {
     e.preventDefault()

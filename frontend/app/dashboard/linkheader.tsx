@@ -35,6 +35,8 @@ export const LinkHeader = ({ href, headerText, children, showHome, disableMargin
       .then(({ success, data }) => {
         if (success) {
           setUsername(data)
+        } else {
+          router.replace("/")
         }
       })
   }
