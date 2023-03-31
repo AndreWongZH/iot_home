@@ -6,6 +6,7 @@ import (
 	"github.com/AndreWongZH/iothome/database"
 	"github.com/AndreWongZH/iothome/device"
 	"github.com/AndreWongZH/iothome/logger"
+	"github.com/AndreWongZH/iothome/nmap"
 	"github.com/AndreWongZH/iothome/routes"
 )
 
@@ -27,6 +28,8 @@ func main() {
 	logger.InitLogger()
 
 	origin, port := getEnvVar()
+
+	nmap.InitNmap()
 
 	db := database.InitDatabase()
 	database.InitializeGlobals(db)

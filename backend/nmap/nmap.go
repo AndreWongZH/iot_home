@@ -2,7 +2,6 @@ package nmap
 
 import (
 	"errors"
-	"fmt"
 	"io"
 	"log"
 	"net"
@@ -20,28 +19,29 @@ type Nmap struct {
 	ipAddr   string
 }
 
+var NmapPtr *Nmap
+
 // A gin route that respond http with a list of ip addresses
 func DiscoverNetworkDevices(ctx *gin.Context) {
 	// scan for network devices
-	nmap, err := initNmap()
-	if err != nil {
-		log.Println(err)
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error":   err.Error(),
+
+	// if nmap fails to init, then just return an empty list
+	if NmapPtr == nil {
+		ctx.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"data":    []string{},
 		})
+		return
 	}
 
-	ipList, err := nmap.findAllDevices()
+	ipList, err := NmapPtr.findAllDevices()
 	if err != nil {
-		log.Println(err)
-		ctx.AbortWithStatusJSON(http.StatusInternalServerError, gin.H{
-			"success": false,
-			"error":   err.Error(),
+		ctx.JSON(http.StatusOK, gin.H{
+			"success": true,
+			"data":    []string{},
 		})
+		return
 	}
-
-	fmt.Println(ipList)
 
 	ctx.JSON(http.StatusOK, gin.H{
 		"success": true,
@@ -49,19 +49,19 @@ func DiscoverNetworkDevices(ctx *gin.Context) {
 	})
 }
 
-func initNmap() (*Nmap, error) {
+func InitNmap() {
 	var nmap Nmap
 
-	if ipAddr, err := getLocalIpAddr(); err == nil {
-		nmap.ipAddr = ipAddr
-	} else {
-		return nil, err
+	ipAddr, err := getLocalIpAddr()
+	if err != nil {
+		return
 	}
+	nmap.ipAddr = ipAddr
 
 	path, err := exec.LookPath("nmap")
 	if err != nil {
 		logger.SugarLog.Errorw(err.Error(), "location", "nmap", "extra", "cannot find path to nmap")
-		return nil, err
+		return
 	}
 
 	nmap.execPath = path
@@ -70,7 +70,7 @@ func initNmap() (*Nmap, error) {
 
 	logger.SugarLog.Info("nmap initialized")
 
-	return &nmap, nil
+	NmapPtr = &nmap
 }
 
 func (nmap *Nmap) findAllDevices() ([]string, error) {
